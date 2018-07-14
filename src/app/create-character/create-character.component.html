@@ -1,0 +1,16 @@
+<div class="container">
+  <div class="row">
+    <div class="card ">
+      <div class="card-title">Set up Account</div>
+      <div class="card-title"> Team Name: <input [(ngModel)]="characterDisplayed.displayName"></div>
+      <div class="card character" style="width: 90%">
+      <div class="card-title input-field">
+        Name: <input  [(ngModel)]="characterDisplayed.character.name">
+      </div>
+      <div class="input-field inline" *ngFor="let key of displayKeys"><div *ngIf="key!='name'">
+        {{key.charAt(0).toUpperCase() + key.slice(1)}}: <input  [(ngModel)]="characterDisplayed.character[key]">
+      </div></div></div>
+      <div class="btn" (click)="createCharacter()">Submit</div>
+    </div>
+  </div>
+</div>

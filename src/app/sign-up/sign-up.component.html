@@ -1,0 +1,26 @@
+<div class="container">
+  <div class="row">
+    <div class="card">
+      <div class="card-title"> Sign Up</div>
+      <div class="row center">
+        <div class="input-field center">
+          <input id="email" type="email" class="validate" [(ngModel)]="email">
+          <label for="email">Email</label>
+        </div>
+        <div class="input-field center">
+          <input id="password" type="password" class="validate" [(ngModel)]="password">
+          <label for="password">Password</label>
+        </div>
+        <div class="input-field center">
+          <input id="confirmPassword" type="password" class="validate" [(ngModel)]="confirmPassword">
+          <label for="confirmPassword">Confirm Password</label>
+        </div>
+        <div>{{error}}</div>
+        <a href="#vampire-village/login"><div class="waves-effect waves-light btn"><i class="material-icons">arrow_back</i></div></a>
+        <div class="waves-effect waves-light btn" (click)="submit()">Submit</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+

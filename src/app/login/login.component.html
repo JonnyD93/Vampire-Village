@@ -1,0 +1,20 @@
+<div class="container">
+  <div class="row">
+    <div class="card">
+      <div class="card-title center"> Login</div>
+      <div class="row center">
+          <div class="input-field center">
+            <input id="email" type="email" class="validate" [(ngModel)]="email">
+            <label for="email">Email</label>
+        </div>
+          <div class="input-field center">
+            <input id="password" type="password" class="validate" [(ngModel)]="password">
+            <label for="password">Password</label>
+        </div>
+        <div>{{error}}</div>
+        <a href="#signup"><div class="waves-effect waves-light btn signUp">Sign Up</div></a>
+      <div class="waves-effect waves-light btn" (click)="signIn()">Login</div>
+      </div>
+    </div>
+  </div>
+</div>

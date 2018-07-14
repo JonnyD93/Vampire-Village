@@ -1,0 +1,29 @@
+<div class="container">
+  <div class="card row">
+    <div class="card-title col s11"> {{displayData.level}} {{displayData.displayName}}</div>
+    <div class="center col s12" style="width: 100%">
+      <div class="progress">Experience
+        <div class="determinate" (style.width)="displayData.experience+'%'"></div>
+      </div>
+    </div>
+    <div class="card-content col s12">
+      <div class="btn">Inventory</div>
+      <div class="btn">Upgrading</div>
+      <div class="btn">Shop</div>
+      <div class="btn" (click)="logOut()">Sign Out</div>
+    </div>
+    <h3>Menu</h3>
+    <div class="card-content playgame-ui col s2">
+      <div class="btn">Solo</div>
+      <div class="btn">Raid</div>
+      <div class="btn">Create</div>
+      <div class="btn">Queue</div>
+    </div>
+    <div class="card-content content-ui col s10">
+      <div>content content content</div>
+    </div>
+    <div class="card-content bottom-ui col s12">
+      <div class="btn right col s2">Start Game</div>
+    </div>
+  </div>
+</div>

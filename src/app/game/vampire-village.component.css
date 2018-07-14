@@ -1,0 +1,287 @@
+label{
+  padding-left: 16px;
+
+}
+label > input{
+  visibility: hidden;
+  position: absolute;
+}
+label > input + div{
+  cursor:pointer;
+  background-color: gray;
+  text-transform: unset;
+  margin-bottom: 16px;
+}
+label > input:checked + div{
+  background-color: green;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+.ability-disabled-ui{
+  padding-left: 16px;
+  cursor: none;
+  background-color: gray;
+  text-transform: unset;
+  margin-bottom: 16px;
+}
+.ability-disabled-ui-cooldown {
+  position: fixed;
+  bottom: 4.6%;
+  color: dimgray;
+}
+.character-stat{
+  margin-top:30%;
+  margin-right: 16px;
+  background-color: white;
+}
+.downArrow{
+  position: absolute;
+  top: 5%;
+  right: 5%;
+  color: lightgray;
+  cursor: pointer;
+}
+.abilities-ui{
+  position: fixed;
+  bottom: 0%;
+  width: inherit;
+  padding-right: 10px;
+  margin: 0 0 10px 10px;
+  background-color: white;
+}
+.player-ui{
+  padding-left: 64px;
+  font-size: 32px;
+  color: black;
+}
+.entity-ui{
+  position: fixed;
+  bottom: 0%;
+  right: 0%;
+  padding-right: 10px;
+  width: inherit;
+  margin: 0 10px 10px 0;
+  background-color: white;
+}
+.entity-name{
+  padding: 0px 10px;
+  font-size: 32px;
+  color: black;
+}
+.entity-effect{
+  position: relative;
+  left:-4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 3px;
+  box-shadow: black 1px 2px 2px;
+}
+.itemName{
+  margin-top: -26px;
+  font-size: 8px;
+}
+.effect{
+  position: absolute;
+  top: -5px;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  box-shadow: black 1px 2px 8px;
+}
+
+.skip-turn-btn{
+  position: absolute;
+  top: 0;
+  height: 32px;
+  background-color: gray;
+}
+.skip-turn-btn:hover {
+  position: absolute;
+  top: 0;
+  height: 32px;
+  background-color: green;
+}
+.skip-turn-icon {
+  line-height: inherit;
+  }
+.vampire{
+  background-color: gray;
+}
+.table{
+  padding-left: 16px;
+  padding-right: 16px;
+}
+.report-box{
+  height: 200px;
+  overflow: auto;
+  border-radius: 8px;
+  position: absolute;
+  right: 0;
+  /* top: 0px; */
+  bottom: 0;
+  background: #dde9f3;
+}
+.message{
+  margin-right: 4px;
+  margin-bottom: 4px;
+}
+.modal-start-wrapper{
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,.8);
+  position: fixed;
+  top: 0;
+  animation: fade-out 1s forwards;
+  animation-delay: 4s;
+}
+.modal-start{
+   left: 25%;
+  top: 30%;
+   position: fixed;
+  animation: fade-out-down 1s forwards;
+  animation-delay: 4s;
+  display: inline;
+ }
+.modal-start > div >  span{
+  font-size: 64px;
+  color: white;
+  text-shadow: 2px 2px 6px white;
+}
+.modal-end-wrapper{
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,.8);
+  position: fixed;
+  top: 0;
+  -webkit-animation: fade-in 3s;
+  -o-animation: fade-in 3s;
+  animation: fade-in 3s;
+}
+.modal-end{
+  left: 12.5%;
+  position: fixed;
+  background-color: rgba(100%,100%,100%,.9);
+  width: 75%;
+  height: 75%;
+  top: 12.5%;
+  box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.2);
+  animation: fade-in-top 3s;
+}
+.modalz-text{
+  font-size: 32px;
+  padding: 0px 16px;
+}
+.modalz-report{
+  width: 70%;
+  height: 70%;
+  background: white;
+  overflow: auto;
+  margin: 0px 16px;
+  box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.2);
+}
+.modalz-report::-webkit-scrollbar {
+width: 10px;
+}
+.modalz-report::-webkit-scrollbar-thumb {
+  background: #383838;
+  border-radius: 16px;
+}
+.progress{
+  background-color: red;
+  height: 8px;
+  width:calc(100% + 10px);;
+  margin-top: -75px;
+}
+.progress .determinate {
+  background-color: green;
+}
+.stats{
+  margin-top: 8px;
+}
+.status{
+  position: fixed;
+  right: 6px;
+  color: white;
+  padding: 5px 10px;
+  font-size: 16px;
+  border-radius: 2px;
+  box-shadow: 0px 2px 2px grey;
+  -webkit-animation: fade-out-right 1s forwards;
+  -o-animation: fade-out-right 1s forwards;
+  animation: fade-out-right 1s forwards;
+  animation-delay: 4s;
+}
+.activeTurn{
+  animation: turnStart 1s forwards;
+}
+.endTurn{
+  animation: turnEnd 1s;
+}
+@keyframes turnStart{
+  0%{
+    transform: translateY(0);
+    z-index:2;
+    -webkit-box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.2);
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.2);
+  }
+  100%{
+    transform: translateY(-32px);
+    box-shadow: 0px 0px 20px gold;
+  }
+}
+@keyframes turnEnd{
+  0%{
+    transform: translateY(-32px);
+    box-shadow: 0px 0px 20px gold;
+
+  }
+  100%{
+    transform: translateY(0);
+    -webkit-box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.2);
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.2);
+  }
+}
+.targeted {
+box-shadow: 2px 2px 8px red;
+}
+.death{
+  animation: fade-out-down 1s;
+}
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes fade-in-top {
+  0% {
+    transform: translateY(-600px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+}
+@keyframes fade-out-down {
+  0% {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(128px);
+    opacity: 0;
+  }
+}
+@keyframes fade-out-right {
+  0%{
+    transform: translateX(0px);
+    opacity: 1;
+  }
+  100%{
+    transform: translateX(128px);
+    opacity:0;
+  }
+}

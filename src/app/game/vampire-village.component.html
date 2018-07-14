@@ -1,0 +1,80 @@
+<div class="container">
+  <div class="row">
+    <div style="padding-top: 32px;">
+      <div class="col s2" style="z-index: 10" *ngFor="let entity of enemyDisplays.entities; let i = index">
+        <div class="btn vampire" [ngClass]="{death: entity.death,activeTurn: entity.activeTurn, endTurn:!entity.activeTurn, targeted:entity.targeted}"
+             [style.background-color]="calcColor(entity,enemyDisplays.healths[i])" (click)="attack(entity)">
+          {{entity.name}}
+        </div>
+        <div *ngIf="!entity.death"><div class="entity-effect" *ngFor="let effect of enemyDisplays.entities[i].activeEffects; let j = index" [style.background-color]="effect.color" [style.z-index]="-1-j" [style.bottom]="36-j+'px'"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="row" style="z-index: 10">
+    <div *ngFor="let character of characterDisplays.characters; let i = index" >
+      <div class="card character-stat col s2" [ngClass]="{death: character.death, activeTurn: character.activeTurn, endTurn:!character.activeTurn, targeted:character.targeted}">
+        <div *ngFor="let key of characterDisplays.keys[0]">
+          <div class="card-title" *ngIf="key =='name'">{{character[key]}}<i
+            class="material-icons downArrow " (click)="attack(character)">my_location</i></div>
+          <div class="stats">
+            <div
+              *ngIf="key != 'side'&& key != 'name' && key != 'abilities' && key !='activeEffects' && key !='inventory'">
+              {{key.charAt(0).toUpperCase() + key.slice(1) + ": "+ character[key]}}
+            </div>
+          </div>
+          <div *ngIf="key == 'activeEffects'">
+            <div class="effect" *ngFor="let effect of character.activeEffects; let j = index"
+                 [style.background-color]="effect.color" [style.z-index]="-1-j" [style.left]="(j*10)-5+'px'"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div *ngFor="let character of characterDisplays.characters; let i = index">
+  <nav class="abilities-ui" *ngIf="checkPlayerActive(character)">
+    <span><div class="btn skip-turn-btn" (click)="skipTurn(false)"><i
+      class="material-icons skip-turn-icon">access_time</i></div></span>
+    <span><div class="btn skip-turn-btn" style="top: 32px;"><i class="material-icons skip-turn-icon">backspace</i></div></span>
+    <span class="player-ui">{{character.name}}</span>
+    <span *ngFor="let ability of character.abilities; let j = index">
+      <label>
+      <input class="with-gap" name="abilities" type="radio" [checked]="checkLastActiveAbility(ability)"/>
+      <div class="btn" *ngIf="ability.currentCooldown <= 0">{{ability.name}}
+        <div class='itemName' *ngIf="checkItemAbility(character,ability)!=''">{{checkItemAbility(character,ability)}}</div>
+      </div>
+      </label>
+      <div *ngIf="ability.currentCooldown>0" class="btn ability-disabled-ui disabled">{{ability.name}}
+        <div class='itemName' *ngIf="checkItemAbility(character,ability)!=''">{{checkItemAbility(character,ability)}}
+        </div>
+        <span class="ability-disabled-ui-cooldown"> {{ability.currentCooldown}}</span>
+      </div>
+    </span>
+    <div class="progress">
+      <div class="determinate" [style.width]="(calcHealth(character.health,characterDisplays.healths[i]))+'%'"></div>
+    </div>
+  </nav>
+</div>
+<div *ngFor="let character of enemyDisplays.entities; let i = index">
+  <nav class="entity-ui"  *ngIf="checkPlayerActive(character)">
+    <span class="entity-name">{{character.name}}</span>
+    <div class="progress">
+      <div class="determinate" [style.width]="(calcHealth(character.health,enemyDisplays.healths[i]))+'%'"></div>
+    </div>
+  </nav>
+</div>
+<span class="status" *ngFor="let hit of hits; let i = index" [ngStyle]="hit.styles" [style.top]="10+(i*5)+'%'">{{hit.description}}</span>
+<div class="modal-end-wrapper" *ngIf="(this.checkTeamDefeated())">
+  <div class="modal-end">
+    <div class="modalz-text"> You Win!</div>
+    <div class="modalz-report" id="report"><div *ngFor="let text of this.report">{{text}}</div></div>
+  </div>
+</div>
+<div class="modal-start-wrapper" *ngIf="!(game.started)">
+  <div class="modal-start">
+    <div *ngFor="let side of game.sides; let i = index">
+      <span  *ngIf="i<(game.sides.length-1)">{{side.charAt(0).toUpperCase() + side.slice(1)}}s V.S. </span>
+      <span *ngIf="i>=(game.sides.length-1)"> {{' '+game.sides[game.sides.length-1].charAt(0).toUpperCase() + game.sides[game.sides.length-1].slice(1)}}s</span>
+  </div>
+  </div>
+</div>
