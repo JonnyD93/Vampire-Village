@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import {Entity} from "../services/models/entity.model";
-import {AccountService} from "../services/account.service";
-import {Player} from "../services/models/player.model";
+import {Component, OnInit} from '@angular/core';
+import {Entity} from '../services/models/entity.model';
+import {AccountService} from '../services/account.service';
+import {Player} from '../services/models/player.model';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-vampire-village-create-character',
@@ -11,28 +12,76 @@ import {Player} from "../services/models/player.model";
 export class CreateCharacter implements OnInit {
 
   account: Player;
-  character : Entity;
-  characterDisplayed: any = {displayName: '',character: {name: '', health: 0, attack: 0, accuracy: 0, agility: 0, resistance: 0}};
+  character: Entity;
+  charDisplayed: any = {displayName: '', character: {name: '', health: 100, attack: 5, accuracy: 60, agility: 0, resistance: 0}};
+  minChar: any = {hp: 75, acc: 10, att: 5, res: 0, agi: 0};
   displayKeys: any[] = [];
-  constructor(private accountService: AccountService) {
+  points: number;
+  error: string;
+
+  constructor(private accountService: AccountService, private router: Router) {
+    this.error = '';
+    this.points = 5;
     // Character name, side, health, attack, defence, accuracy, agility, resistance, abilities
-    this.accountService.checkSignedIn();
-    Object.keys(this.characterDisplayed.character).forEach((key)=>{if(key!='name') {this.displayKeys.push(key)}});
-    this.character = new Entity('','human','','',0,'','','',[]);
-    this.account = new Player('','');
+    Object.keys(this.charDisplayed.character).forEach((key) => {
+      if (key !== 'name') {
+        this.displayKeys.push(key);
+      }
+    });
+    this.character = new Entity(
+      '',
+      'human',
+      this.charDisplayed.character.health,
+      this.charDisplayed.character.attack,
+      0,
+      this.charDisplayed.character.accuracy,
+      this.charDisplayed.character.agility,
+      this.charDisplayed.character.resistance,
+      []);
+    this.account = new Player('', '');
   }
 
   ngOnInit() {
   }
 
-  createCharacter(){
-    Object.keys(this.characterDisplayed.character).forEach((key)=>{
-      this.character[key] = this.characterDisplayed.character[key];
+  decreaseValue(key) {
+    if ((key === 'accuracy' && this.charDisplayed.character[key] > this.minChar.acc) || (key == 'health' && this.charDisplayed.character[key] > this.minChar.hp)) {
+      this.charDisplayed.character[key] -= 5;
+      this.points++;
+    } else if ((key == 'resistance' && this.charDisplayed.character[key] > this.minChar.res)) {
+      this.charDisplayed.character[key] -= 2;
+      this.points++;
+    } else if ((key == 'attack' && this.charDisplayed.character[key] > this.minChar.att) || (key == 'agility' && this.charDisplayed.character[key] > this.minChar.agi)) {
+      this.charDisplayed.character[key] -= 1;
+      this.points++;
+    }
+  }
+
+  increaseValue(key) {
+    if (this.points > 0) {
+      if (key === 'accuracy' || key == 'health') {
+        this.charDisplayed.character[key] += 5;
+        this.points--;
+      } else if (key == 'resistance') {
+        this.charDisplayed.character[key] += 2;
+        this.points--;
+      } else if (key == 'attack' || key == 'agility') {
+        this.charDisplayed.character[key] += 1;
+        this.points--;
+      }
+    } else {
+      this.error = 'You are out of Points!';
+    }
+  }
+
+  createCharacter() {
+    Object.keys(this.charDisplayed.character).forEach((key) => {
+      this.character[key] = this.charDisplayed.character[key];
     });
     this.account.characters.push(this.character);
-    this.account.displayName = this.characterDisplayed.displayName;
+    this.account.displayName = this.charDisplayed.displayName;
     this.accountService.createAccount(this.account);
-
+    this.router.navigate(['home']);
   }
 
 }

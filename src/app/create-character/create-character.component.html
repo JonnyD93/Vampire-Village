@@ -2,14 +2,20 @@
   <div class="row">
     <div class="card ">
       <div class="card-title">Set up Account</div>
-      <div class="card-title"> Team Name: <input [(ngModel)]="characterDisplayed.displayName"></div>
-      <div class="card character" style="width: 90%">
-      <div class="card-title input-field">
-        Name: <input  [(ngModel)]="characterDisplayed.character.name">
+      <div class="card-title"> Team Name: <input [(ngModel)]="charDisplayed.displayName">  </div>
+      <div class="card character">
+        <div class="card-title input-field">
+          Name: <input [(ngModel)]="charDisplayed.character.name">
+          <div class="tally">{{points}}</div>
+        </div>
+
+        <div class="input-field" *ngFor="let key of displayKeys">
+          <div *ngIf="key!='name'">{{key.charAt(0).toUpperCase() + key.slice(1)}}: {{charDisplayed.character[key]}}
+            <i class="material-icons" (click)="increaseValue(key)">arrow_drop_up</i>
+          <i class="material-icons" (click)="decreaseValue(key)">arrow_drop_down</i>
+          </div>
+        </div>
       </div>
-      <div class="input-field inline" *ngFor="let key of displayKeys"><div *ngIf="key!='name'">
-        {{key.charAt(0).toUpperCase() + key.slice(1)}}: <input  [(ngModel)]="characterDisplayed.character[key]">
-      </div></div></div>
       <div class="btn" (click)="createCharacter()">Submit</div>
     </div>
   </div>
