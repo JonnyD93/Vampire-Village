@@ -16,7 +16,7 @@ export class HomeComponent implements OnInit {
 
   constructor(private accountService: AccountService) {
     accountService.checkSignedIn();
-    this.displayData = accountService.account;
+    this.displayData = accountService.getAccount();
     console.log(accountService.adminCalculateAllRanks());
   }
 
@@ -26,5 +26,8 @@ export class HomeComponent implements OnInit {
   logOut(){
     this.accountService.signOut();
     this.accountService.checkSignedIn();
+  }
+  playPVE(){
+    this.accountService.createPVERoom();
   }
 }

@@ -7,6 +7,7 @@ import {ItemsService} from "../services/items.service";
 import {FakeDataService} from "../services/fakeData.service";
 import {promise} from "selenium-webdriver";
 import {EffectsService} from "../services/effects.service";
+import {GameService} from "../services/game.service";
 
 @Component({
   selector: 'app-vampire-village',
