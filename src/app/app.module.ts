@@ -24,6 +24,7 @@ import { AccountService } from "./services/account.service";
 import { AbilitiesService } from "./services/abilities.service";
 import { FakeDataService } from "./services/fakeData.service";
 import { GameService } from "./services/game.service";
+import {DataService} from "./services/data.service";
 
 const appRoutes: Routes = [
   { path: 'vampire-village', component: VampireVillageComponent },
@@ -62,7 +63,7 @@ firebase.initializeApp(config);
     HttpModule,
     RouterModule.forRoot(appRoutes)
   ],
-  providers: [AbilitiesService, AccountService,EffectsService, FakeDataService,GameService, ItemsService, Location, {provide: LocationStrategy, useClass: HashLocationStrategy}],
+  providers: [AbilitiesService, AccountService, DataService, EffectsService, FakeDataService,GameService, ItemsService, Location, {provide: LocationStrategy, useClass: HashLocationStrategy}],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

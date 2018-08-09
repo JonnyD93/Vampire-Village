@@ -5,6 +5,7 @@ export class Player {
 
   displayName: string;
   accountId: string;
+  roomId: string;
   level: number;
   experience: number;
   games: {wins: number, kills: number,loses: number, quits: number };
@@ -16,6 +17,7 @@ export class Player {
   constructor(displayName, accountId){
     this.displayName = displayName;
     this.accountId = accountId;
+    this.roomId = '';
     this.level = 1;
     this.experience = 0;
     this.games = {wins: 0, kills: 0, loses: 0, quits: 0};

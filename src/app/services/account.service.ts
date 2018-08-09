@@ -5,6 +5,7 @@ import {Player} from "./models/player.model";
 import {Item} from "./models/item.model";
 import {Entity} from "./models/entity.model";
 import {AbilitiesService} from "./abilities.service";
+import {DataService} from "./data.service";
 
 @Injectable()
 export class AccountService {
@@ -15,7 +16,7 @@ export class AccountService {
   private loggedIn: boolean;
   database: any;
 
-  constructor(private router: Router, private abilitiesService: AbilitiesService) {
+  constructor(private router: Router, private dataService: DataService,private abilitiesService: AbilitiesService) {
     this.database = firebase.database();
     this.loggedIn = false;
   }
@@ -30,7 +31,7 @@ export class AccountService {
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
         this.user = {email: user.email, id: user.uid};
-        this.database.ref('/users').once('value').then((snapshot)=>{
+        this.database.get('users', '', (snapshot)=>{
           if(snapshot.val() != null)
             this.account = snapshot.val()[this.user.id];
         });
@@ -68,7 +69,7 @@ export class AccountService {
   }
 
   createAccount(account){
-    this.database.ref(`/users/${this.user.id}`).set({
+    this.dataService.save(`users`,this.user.id,{
       displayName: account.displayName,
       level: 0,
       experience: 0,
@@ -77,7 +78,7 @@ export class AccountService {
       characters: account.characters,
       inventory: []
     });
-    this.router.navigate(['home'])
+    this.router.navigate(['home']);
   }
   getAccount(): Player {
     return this.account;
