@@ -1,5 +1,3 @@
-import {Effects} from "./effects.model";
-
 export class Ability {
 
   name: string;
@@ -11,7 +9,7 @@ export class Ability {
   cooldown: number;
   currentCooldown: number;
 
-  constructor(name,type,description,damageMultiplier, effect, effectChance, cooldown){
+  constructor(name, type, description, damageMultiplier, effect, effectChance, cooldown){
     this.name = name;
     this.type = type;
     this.damageMultiplier = damageMultiplier;

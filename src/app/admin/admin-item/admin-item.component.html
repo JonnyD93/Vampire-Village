@@ -1,0 +1,76 @@
+<nav>
+  <div class="nav-wrapper admin-nav">
+    <div class="col s12">
+      <a [routerLink]="['/admin']" class="breadcrumb">Admin</a>
+      <a [routerLink]="['/admin/items']" class="breadcrumb">Items</a>
+    </div>
+  </div>
+</nav>
+<div class="container">
+  <div class="row">
+    <div class="card">
+      <div class="card-content">
+        <span class="card-title">Create Item</span>
+        <div class="row">
+          <div class="inputs col s8">
+            <input id="name" [(ngModel)]="newItem.name">
+            <label for="name">Name</label>
+            <input id="desc" [(ngModel)]="newItem.description">
+            <label for="desc">Description</label>
+          </div>
+          <div class="dropdown-buttons col s3">
+            <a class='dropdown-trigger btn' href='#' data-target='dropdown1'>{{newItem.type}}</a>
+            <ul id='dropdown1' class='dropdown-content'>
+              <li *ngFor="let type of types"><a (click)="setType(type)">{{type}}</a></li>
+            </ul>
+            <a class='dropdown-trigger btn' href='#' data-target='dropdown2'>{{newItem.rarity}}</a>
+            <ul id='dropdown2' class='dropdown-content'>
+              <li *ngFor="let rarity of rarities"><a (click)="setRarity(rarity)">{{rarity}}</a></li>
+            </ul>
+            <a class='dropdown-trigger btn' href='#' data-target='dropdown3'>{{newItem.set}}</a>
+            <ul id='dropdown3' class='dropdown-content'>
+              <li *ngFor="let set of sets"><a (click)="setSet(set)">{{set}}</a></li>
+            </ul>
+          </div>
+          <div class="col s8">
+            <input id="dmgMulti" [(ngModel)]="newItem.itemVariable">
+            <label for="dmgMulti">Modifier</label>
+          </div>
+        </div>
+        <form id='abilityList' action="#" class="abilities cos 12">
+          <p *ngFor="let ability of abilities">
+            <label>
+              <input type="checkbox" (click)="toggleAbility(ability)" (id)="ability.ability.id"/>
+              <span>{{ability.ability.name}}</span>
+            </label>
+          </p>
+        </form>
+        <a class="btn admin-btn" (click)="submit()">Create</a>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-content">
+        <div class="row card-title">
+        <span class="col s6">View Items</span>
+        <div class="search col s3"><input [(ngModel)]="search.input"></div>
+          <a class='dropdown-trigger btn searchBtn col s2' href='#' data-target='dropdown4'>{{search.key}}</a>
+          <ul id='dropdown4' class='dropdown-content'>
+            <li *ngFor="let key of searchKeys"><a (click)="setSearch(key)">{{key}}</a></li>
+          </ul>
+        </div>
+        <table>
+          <tr>
+            <th *ngFor="let key of itemKeys"><div class="tableElement">{{key.substring(0,1).toUpperCase()+key.substring(1)}}</div></th>
+            <th ><div class="tableElement">ID</div></th>
+            <th ><div class="tableElement"></div></th>
+          </tr>
+            <tr *ngFor="let item of results">
+              <td *ngFor="let key of itemKeys"><div class="tableElement">{{item[key]}}</div></td>
+              <td><div class="tableElement">  {{item.id}}</div></td>
+              <td><div class="tableElement"> <a (click)="delete(item.id)" class="red-text">X</a></div></td>
+            </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

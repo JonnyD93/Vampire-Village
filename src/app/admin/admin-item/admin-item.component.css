@@ -1,0 +1,128 @@
+input {
+  margin-left: 16px !important;
+  display: inline;
+  height: 2rem !important;
+  padding-top: 16px;
+}
+iframe{
+  alignment: center;
+}
+label{
+  font-size: 20px;
+  top: -65px;
+  display: inline;
+  position: relative;
+}
+li{
+  background: white;
+  border-radius: 25px
+}
+li.active{
+  background-color: black;
+  border-radius: 25px;
+}
+nav{
+  background-color: gray;
+}
+textarea {
+  margin-top: 16px;
+  border: none;
+  border-bottom: 1px solid darkgray;
+  height:360px;
+  resize: none;
+}
+textarea:focus {
+  border: none;
+}
+.abilities {
+  padding-top: 32px
+}
+.btn {
+  margin-left: 16px !important;
+  background-color: dimgray;
+  margin-top: 10px;
+  border-radius: 4px;
+}
+.dropdown-buttons{
+  align-content: center;
+  padding-top: 35px;
+}
+.card {
+  border-radius: 16px;
+}
+
+.body,height{
+  height: 100%;
+}
+.btn{
+  background-color: black;
+}
+.card-content{
+  margin-top: 16px;
+  padding-top: 0px;
+}
+.card-title{
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  padding-top: 0px;
+  padding-left: 16px;
+  padding-bottom: -32px;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 32px;
+  color: #FFFFFF;
+  background: #838582;
+  box-shadow: 0px 2px 4px grey;
+}
+.effect-chance{
+  padding-top: 80px;
+}
+.header {
+  color: hsl(0, 0%, 100%);
+  text-decoration: none;
+  font-size: 72px;
+  letter-spacing: -3px;
+  line-height: 4px;
+  text-shadow: hsl(0, 0%, 00%) 3px 2px 0;
+  position: relative;
+  text-underline: #000000;
+  display: inline;
+}
+.header-container{
+  margin-top: 100px;
+}
+.tableElement {
+  height: 24px;
+  max-height: 40px;
+  overflow-y: auto;
+  max-width: 100%;
+  overflow-x: hidden;
+  padding: 0 4px !important;
+}
+.tableElement ::-webkit-scrollbar-thumb {
+   border-radius: 25px;
+ }
+.search {
+  background-color: white;
+  margin-top: 0px;
+  display: inline;
+  padding: 0px;
+  max-height: 36px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+.search > input {
+  padding-top: 0px;
+}
+.searchBtn{
+  overflow: hidden;
+  margin-top: 0px;
+  margin-left: -10px !important;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-top-left-radius: 0px !important;
+  border-top-right-radius: 0px !important;
+}
+#date {
+  padding-right: 16px;
+}
+

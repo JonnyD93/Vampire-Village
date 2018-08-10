@@ -1,7 +1,6 @@
-import {Ability} from "./ability.model";
-import {Effect} from "./effect.model";
-import {Item} from "./item.model";
-import {ItemsService} from "../items.service";
+import {Ability} from './ability.model';
+import {Effect} from './effect.model';
+import {Item} from './item.model';
 
 export class Entity {
   name: string;
@@ -16,7 +15,7 @@ export class Entity {
   activeEffects: Effect[];
   inventory: Item[];
 
-  constructor(name,side,health,attack, defense, accuracy, agility,resistance, abilities ){
+  constructor(name, side, health, attack, defense, accuracy, agility, resistance, abilities) {
     this.name = name;
     this.side = side;
     this.health = health;

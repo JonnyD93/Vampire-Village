@@ -6,7 +6,7 @@ export class Effect {
   color: string;
 
 
-  constructor(name,desc, duration, color){
+  constructor(name, desc, duration, color) {
     this.name = name;
     this.desc = desc;
     this.duration = duration;

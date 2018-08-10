@@ -1,13 +1,5 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
-import {AbilitiesService} from "../services/abilities.service";
-import {Entity} from "../services/models/entity.model";
-import {Ability} from "../services/models/ability.model";
-import {Effect} from "../services/models/effect.model";
-import {ItemsService} from "../services/items.service";
-import {FakeDataService} from "../services/fakeData.service";
-import {promise} from "selenium-webdriver";
-import {EffectsService} from "../services/effects.service";
-import {GameService} from "../services/game.service";
+import {DataService} from '../services/data.service';
 
 @Component({
   selector: 'app-vampire-village',
@@ -34,35 +26,34 @@ export class VampireVillageComponent implements OnInit, AfterViewInit {
   interval: any;
   // The sides of the game
   game: any = {sides: [], started: false};
-  constructor(private fakeData: FakeDataService, private dataService: DataService) {
+
+  constructor(private dataService: DataService) {
     // Pulling from the fake data Service
-    for (let character of fakeData.PlayerData.characters)
-      this.room.push(character);
     // Setting up stuff for Displaying purposes
-    for (let character of this.room.filter(x => x.side === "human")) {
+    for (const character of this.room.filter(x => x.side === 'human')) {
       this.characterDisplays.keys.push(Object.keys(character));
       this.characterDisplays.characters.push(character);
       this.characterDisplays.healths.push(character.health);
     }
-    for (let entity of this.room.filter(x => x.side != "human")) {
+    for (const entity of this.room.filter(x => x.side !== 'human')) {
       this.enemyDisplays.entities.push(entity);
       this.enemyDisplays.healths.push(entity.health);
     }
     this.game.sides = this.room.map(item => item.side).filter((value, index, self) => self.indexOf(value) === index);
     // Initial setup of the game
-   // this.sortTurns();
+    // this.sortTurns();
   }
 
   ngOnInit() {
   }
 
   ngAfterViewInit() {
-   // this.startGame();
+    // this.startGame();
   }
 
-  //Updates the All Displays
+  // Updates the All Displays
   updateDisplays(defender): void {
-    return (this.characterDisplays.characters.indexOf(defender) != -1)
+    return (this.characterDisplays.characters.indexOf(defender) !== -1)
       ? Object.keys(this.characterDisplays).forEach((key) => {
         this.characterDisplays[key].splice(this.characterDisplays.characters.indexOf(defender), 1);
       })
@@ -75,6 +66,11 @@ export class VampireVillageComponent implements OnInit, AfterViewInit {
   checkAnyActiveAbilities(entity) {
     return entity.abilities.filter((ability) => (ability.currentCooldown <= 0)).length <= 0;
   }
+  // //Determines the color of the enemy Entity based on amount of health
+  // calcColor(entity, health) {
+  //   let x = 100 - ((entity.health / health) * 100);
+  //   return `rgb(${x}%,${x}%,${x}%)`;
+  // }
 
   // Checks if the Ability is from an Item, and returns that Item's Name
   checkItemAbility(character, ability) {
@@ -96,21 +92,53 @@ export class VampireVillageComponent implements OnInit, AfterViewInit {
 
   // Checks if a team is defeated
   checkTeamDefeated() {
-    return ((this.room.filter((entity) => entity === this.enemyDisplays.entities[0])).length == 0) ||
-      ((this.room.filter((entity) => entity === this.characterDisplays.characters[0])).length == 0);
+    return ((this.room.filter((entity) => entity === this.enemyDisplays.entities[0])).length === 0) ||
+      ((this.room.filter((entity) => entity === this.characterDisplays.characters[0])).length === 0);
   }
 
   // Function to detect which player is active, and return true or false on it.
   checkPlayerActive(character) {
-    return ((this.turns != undefined) && (this.turns[0] === character));
+    return ((this.turns !== undefined) && (this.turns[0] === character));
   }
 
   // Creates an hit object to display Players damage on a given target
   spawnToast(description, style) {
-    this.dataService.subscribe()
-    let obj = {styles: {backgroundColor: style}, description: description};
+    const obj = {styles: {backgroundColor: style}, description: description};
     this.hits.push(obj);
     this.report.push(description);
     setTimeout(() => this.hits.splice(this.hits.indexOf(obj), 1), 5000);
   }
+
+  // // Checks if the Ability is from an Item, and returns that Item's Name
+  // checkItemAbility(character, item) {
+  //   let itemName = '';
+  //   if (character.inventory.length > 0)
+  //     character.inventory.forEach((item) => {
+  //       if (item.itemAbilities != null)
+  //         item.itemAbilities.forEach((abilityItem) => {
+  //           itemName = (item === abilityItem) ? `( ${item.name} )` : '';
+  //         });
+  //     });
+  //   return itemName;
+  // }
+  //
+  // // Needs to be fixed
+  // checkLastActiveAbility(item) {
+  //   return (item.currentCooldown <= 0);
+  // }
+  //
+  //
+  // // Function to detect which player is active, and return true or false on it.
+  // checkPlayerActive(character) {
+  //   return ((this.turns != undefined) && (this.turns[0] === character));
+  // }
+  //
+  // // Creates an hit object to display Players damage on a given target
+  // spawnToast(description, style) {
+  //   let obj = {styles: {backgroundColor: style}, description: description};
+  //   this.hits.push(obj);
+  //   this.report.push(description);
+  //   setTimeout(() => this.hits.splice(this.hits.indexOf(obj), 1), 5000);
+  // }
+  //
 }

@@ -1,7 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import * as firebase from "firebase";
-import {FakeDataService} from "../services/fakeData.service";
-import {Entity} from "../services/models/entity.model";
 import {AccountService} from "../services/account.service";
 
 @Component({
@@ -15,7 +12,7 @@ export class HomeComponent implements OnInit {
   displayData: any;
 
   constructor(private accountService: AccountService) {
-    accountService.checkSignedIn();
+   // accountService.checkSignedIn();
     this.displayData = accountService.getAccount();
     console.log(accountService.adminCalculateAllRanks());
   }
@@ -23,11 +20,11 @@ export class HomeComponent implements OnInit {
   ngOnInit() {
   }
 
-  logOut(){
+  logOut() {
     this.accountService.signOut();
-    this.accountService.checkSignedIn();
+    // this.accountService.checkSignedIn();
   }
-  playPVE(){
-    this.accountService.createPVERoom();
+  playPVE() {
+   // this.accountService.createPVERoom();
   }
 }

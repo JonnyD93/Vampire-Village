@@ -1,6 +1,6 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
-import {AccountService} from "../services/account.service";
-import {Router} from "@angular/router";
+import {AccountService} from '../services/account.service';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-vampire-village-login',
@@ -13,24 +13,29 @@ export class LoginComponent implements OnInit, AfterViewInit {
   password: string;
   error: string;
 
-  constructor(private accountService: AccountService) {
+  constructor(private accountService: AccountService, private router: Router) {
     this.error = '';
-    this.accountService.checkSignedIn()
+
   }
 
-  ngOnInit() {
-  }
-  ngAfterViewInit(){
+  ngOnInit() {}
+
+  ngAfterViewInit() {
+   // console.log(this.accountService.checkSignedIn());
+   // this.router.navigate([this.accountService.checkSignedIn()]);
   }
 
-  signIn(){
-    this.accountService.checkSignedIn();
-    if(this.email != undefined && this.password != undefined)
-      this.accountService.signIn(this.email,this.password,()=>{return;},
-      (error)=>{
-      this.error = error.message;
-      this.password = '';
-      });
+  signIn() {
+    // this.accountService.checkSignedIn();
+    if (this.email !== undefined && this.password !== undefined) {
+      this.accountService.signIn(this.email, this.password, () => {
+          return;
+        },
+        (error) => {
+          this.error = error.message;
+          this.password = '';
+        });
+    }
   }
 
 }
