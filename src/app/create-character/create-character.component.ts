@@ -11,9 +11,8 @@ import {Router} from '@angular/router';
 })
 export class CreateCharacter implements OnInit {
 
-  account: Player;
   character: Entity;
-  charDisplayed: any = {displayName: '', character: {name: '', health: 100, attack: 5, accuracy: 60, agility: 0, resistance: 0}};
+  charDisplayed: any = {teamName: '', character: {name: '', health: 100, attack: 5, accuracy: 60, agility: 0, resistance: 0}};
   minChar: any = {hp: 75, acc: 10, att: 5, res: 0, agi: 0};
   displayKeys: any[] = [];
   points: number;
@@ -30,7 +29,6 @@ export class CreateCharacter implements OnInit {
     });
     this.character = new Entity(
       '',
-      'human',
       this.charDisplayed.character.health,
       this.charDisplayed.character.attack,
       0,
@@ -38,10 +36,12 @@ export class CreateCharacter implements OnInit {
       this.charDisplayed.character.agility,
       this.charDisplayed.character.resistance,
       []);
-    this.account = new Player('', '');
   }
 
   ngOnInit() {
+    if(!this.accountService.checkSignedIn()) {
+      this.router.navigate(['login']);
+    }
   }
 
   decreaseValue(key) {
@@ -76,11 +76,14 @@ export class CreateCharacter implements OnInit {
 
   createCharacter() {
     Object.keys(this.charDisplayed.character).forEach((key) => {
-      this.character[key] = this.charDisplayed.character[key];
+      if (key !== 'name')
+        this.character.attributes[key] = this.charDisplayed.character[key];
+      else
+        this.character[key] = this.charDisplayed.character[key];
     });
-    this.account.characters.push(this.character);
-    this.account.displayName = this.charDisplayed.displayName;
-    this.accountService.createAccount(this.account);
+    this.accountService.createCharacter(this.character.name, this.character.attributes.health, this.character.attributes.attack,
+      this.character.attributes.accuracy, this.character.attributes.agility, this.character.attributes.resistance);
+    this.accountService.createAccount(this.charDisplayed.teamName);
     this.router.navigate(['home']);
   }
 

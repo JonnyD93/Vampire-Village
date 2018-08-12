@@ -1,5 +1,7 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {DataService} from '../services/data.service';
+import {AccountService} from '../services/account.service';
+import {GameService} from '../services/game.service';
 
 @Component({
   selector: 'app-vampire-village',
@@ -13,6 +15,7 @@ export class VampireVillageComponent implements OnInit, AfterViewInit {
   room: any[] = [];
   // Each characters different type of Object Keys, as a separate variable
   characterDisplays: any = {keys: [], characters: [], healths: []};
+  allyDisplays: any = {entities: [], healths: []};
   enemyDisplays: any = {entities: [], healths: []};
   // The turns variable is populated with the turns of the game
   turns: any[] = [];
@@ -27,7 +30,9 @@ export class VampireVillageComponent implements OnInit, AfterViewInit {
   // The sides of the game
   game: any = {sides: [], started: false};
 
-  constructor(private dataService: DataService) {
+  sides: any[] = [];
+
+  constructor(private dataService: DataService, private accountService: AccountService, private gameService: GameService) {
     // Pulling from the fake data Service
     // Setting up stuff for Displaying purposes
     for (const character of this.room.filter(x => x.side === 'human')) {

@@ -27,7 +27,7 @@ export class EffectsService {
   }
 
   chickenEffect(entity, effect) {
-    const chicken = new Entity('Chicken', entity.side, entity.health, 1, 0, 20, -1, 0,
+    const chicken = new Entity('Chicken', entity.health, 1, 0, 20, -1, 0,
       [this.abilities.find((ability) => ability.name === 'Pluck'), this.abilities.find((ability) => ability.name === 'Pluck'),
         this.abilities.find((ability) => ability.name === 'Pluck')]);
     if (effect.duration >= 2) {

@@ -22,6 +22,7 @@ export class GameService {
   // The sides of the game
   game: any = {sides: [], started: false};
   // currentTurn: any;
+  sides: any = [];
   teamDefeated: boolean;
   activeAbilities: boolean;
   currentTurn: any;
@@ -30,15 +31,22 @@ export class GameService {
     this.database = firebase.database();
     dataService.subscribe('rooms', this.accountService.getAccount().roomId, (room) => {
       room.sides.forEach((side) => {
-        side.forEach((Account) => {
-          Account.forEach((character) => {
-            this.room.push(character);
-          });
+        side.forEach((accountID) => {
+          if (typeof accountID === 'string') {
+            dataService.get('characters', accountID, (characters) => {
+              this.sides.push(characters);
+              characters.forEach((char) => this.room.push(char));
+            });
+          } else {
+            console.log(this.sides, 'hello moma?');
+            this.sides.push(side);
+            this.room.push(accountID);
+          }
         });
       });
     });
+    console.log(this.room);
     this.currentTurn = undefined;
-    this.sortTurns();
     this.startGame();
   }
 
@@ -53,7 +61,7 @@ export class GameService {
 
   // Apples the effect to the person defending
   applyEffect(defender: Entity, ability: Ability) {
-    if (ability.effect != null && (ability.effectChance >= this.rndInt(100 + defender.resistance))) {
+    if (ability.effect != null && (ability.effectChance >= this.rndInt(100 + defender.attributes.resistance))) {
       this.updateReport(`${defender.name} is now ${ability.effect.desc} : ability.effect.color`);
       defender.activeEffects.push(JSON.parse(JSON.stringify(ability.effect)));
     }
@@ -81,7 +89,7 @@ export class GameService {
 
   // Checks who turn it is
   checkCurrentTurn() {
-    this.dataService.get('room', this.accountService.getAccount().roomId, (room) => (this.currentTurn = room.currentTurn));
+    this.dataService.get('rooms', this.accountService.getAccount().roomId, (room) => (this.currentTurn = room.currentTurn));
   }
 
   // Checks if the entity is dead
@@ -114,22 +122,22 @@ export class GameService {
     const defend = this.rndInt(defender.defense);
     defender.targeted = true;
     ability.currentCooldown = ability.cooldown;
-    if ((attacker.accuracy >= this.rndInt(100 + defender.agility))) {
+    if ((attacker.attributes.accuracy >= this.rndInt(100 + defender.attributes.agility))) {
       this.applyEffect(defender, ability);
       if (type === 'health') {
         if (attack < 0) {
-          defender.health -= attack;
+          defender.attributes.health -= attack;
         }
         if ((attack - defend) <= 0) {
         }
         // this.spawnToast(`${defender.name} blocked ${attacker.name} by ${Math.abs(attack - defend)}`, 'blue');
         if ((attack - defend) > 0) {
           // this.spawnToast(`${attacker.name} ${item.description} ${defender.name} for ${attack - defend}`, 'red');
-          defender.health -= (attack - defend);
+          defender.attributes.health -= (attack - defend);
           this.checkDead(defender);
         }
       } else {
-        defender[type] = (defender[type] - attacker.attack >= 0)
+        defender[type] = (defender[type] - attacker.attributes.attack >= 0)
           ? defender[type] - attack
           : 0;
       }
@@ -195,10 +203,10 @@ export class GameService {
       this.turns.push(entity);
     });
     this.turns.sort((a, b) => {
-      if (a.agility < b.agility) {
+      if (a.attributes.agility < b.attributes.agility) {
         return 1;
       }
-      if (a.agility > b.agility) {
+      if (a.attributes.agility > b.attributes.agility) {
         return -1;
       }
       return 0;
@@ -223,44 +231,53 @@ export class GameService {
     }
     this.updateCurrentTurn();
     this.interval = setInterval(() => {
-      this.updateTurnTime(this.turnTime());
+      this.updateTurnTime(this.turnTime);
       this.turnTime++;
       if (this.turnTime >= 60) {
         clearInterval(this.interval);
         this.skipTurn(entity);
       }
     }, 1000);
-    entity.abilities.forEach((ability) => ability.currentCooldown--);
-    this.effectTurn(entity);
-    this.dataService.get('room',
-      this.accountService.getAccount().roomId,
-      (room) => this.activeAbilities = (room.currentTurn.abilities.filter((ability) => (ability.currentCooldown <= 0)).length <= 0));
-    if (this.activeAbilities) {
-      clearInterval(this.interval);
-      return this.skipTurn(entity);
+    console.log(entity);
+    if (!!(entity.activeEffects)) {
+      this.effectTurn(entity);
     }
-    entity.activeTurn = true;
-    if (entity.side === 'human') {
-      return;
-    } else {
-      this.entityAttack(entity);
-      await this.delay(1000, 1);
-      clearInterval(this.interval);
-      entity.activeTurn = false;
-      return this.skipTurn(entity);
+    if (!!(entity.abilities)) {
+      entity.abilities.forEach((ability) => ability.currentCooldown--);
+      this.dataService.get('rooms', this.accountService.getAccount().roomId,
+        (room) => this.activeAbilities = (room.currentTurn.abilities.filter((ability) => (ability.currentCooldown <= 0)).length <= 0));
+      if (this.activeAbilities) {
+        clearInterval(this.interval);
+        return this.skipTurn(entity);
+      }
+      entity.activeTurn = true;
+      if (entity.side === 'human') {
+        return;
+      } else {
+        this.entityAttack(entity);
+        await this.delay(1000, 1);
+        clearInterval(this.interval);
+        entity.activeTurn = false;
+        return this.skipTurn(entity);
+      }
     }
   }
 
   updateCurrentTurn() {
-    this.dataService.update('room', this.accountService.getAccount().roomId, {currentTurn: this.turns[0]});
+    console.log(this.turns);
+    this.dataService.update('rooms', this.accountService.getAccount().roomId, {currentTurn: this.turns[0]});
   }
 
   updateReport(str) {
     this.report.push(str);
-    this.dataService.update('room', this.accountService.getAccount().roomId, {report: this.report});
+    this.dataService.update('rooms', this.accountService.getAccount().roomId, {report: this.report});
   }
 
   updateTurnTime(time) {
-    this.dataService.update('room', this.accountService.getAccount().roomId, {turnTime: time});
+    this.dataService.update('rooms', this.accountService.getAccount().roomId, {turnTime: time});
+  }
+
+  getSides() {
+
   }
 }

@@ -37,7 +37,7 @@ export class AdminItemComponent implements OnInit {
       data = data || [];
       this.items = data;
     });
-    setTimeout(() => (this.dataService.update('items', this.items[0].id, {rarity: 'Broken'})), 1000);
+    // setTimeout(() => (this.dataService.update('items', this.items[0].id, {rarity: 'Broken'})), 1000);
   }
 
   ngOnInit() {
@@ -90,6 +90,6 @@ export class AdminItemComponent implements OnInit {
   }
 
   delete(id) {
-    this.dataService.delete(`abilities/${id}`);
+    this.dataService.delete(`items/${id}`);
   }
 }

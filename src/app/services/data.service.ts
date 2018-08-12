@@ -31,10 +31,9 @@ export class DataService {
   get(path: string, key: string, onLoad) {
     this.database(path + this.key(key)).once('value').then(snapshot => {
       let data = snapshot.val();
-      onLoad(key ? Object.assign({id: key}, data) : this.list(data));
+      onLoad(key ? Object.assign([], data) : this.list(data));
     });
   }
-
   subscribe(path: string, key: string, onChange: any) {
     this.database(path + this.key(key)).on('value', snapshot => {
       let data = snapshot.val();
@@ -61,18 +60,22 @@ export class DataService {
   }
 
   //
-  getItem(id, callback) {
-    this.get('items', id, item =>
-      this.get(item.db, item.id, value => callback(value))
-    );
+  getItem(string) {
+    let item: any = [];
+    this.get('items', string, data => {
+      data = data || [];
+      item = data;
+    });
+    return item;
   }
   // Finds an Ability given a string
-  findAbility(string) {
-    let abilities: any = [];
+  getAbilities(string) {
+    let ability: any = [];
     this.get('abilities', '', data => {
       data = data || [];
-      abilities = data;
+      ability.push(data.filter((abilityD) => abilityD.id === string));
     });
-  return abilities.find((ability) => ability.name === string);
+    console.log(ability);
+  return ability;
   }
 }

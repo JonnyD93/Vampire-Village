@@ -26,16 +26,21 @@ export class LoginComponent implements OnInit, AfterViewInit {
   }
 
   signIn() {
-    // this.accountService.checkSignedIn();
     if (this.email !== undefined && this.password !== undefined) {
       this.accountService.signIn(this.email, this.password, () => {
-          return;
+          if (this.accountService.checkSignedIn()) {
+            if ((this.accountService.checkAccount())) {
+              this.router.navigate(['create-character']);
+            } else {
+              this.router.navigate(['home']);
+            }}
         },
         (error) => {
           this.error = error.message;
           this.password = '';
         });
     }
+
   }
 
 }
