@@ -28,24 +28,36 @@ export class GameService {
   currentTurn: any;
 
   constructor(private accountService: AccountService, private dataService: DataService, private effectsService: EffectsService) {
-    this.database = firebase.database();
-    dataService.subscribe('rooms', this.accountService.getAccount().roomId, (room) => {
+    this.database = firebase.database(); // Sets the database to the firebase database
+    dataService.get('rooms', this.accountService.getAccount().roomId, (room) => { // Subscribes to the data Service
+      this.sides = [];
+      this.room = [];
       room.sides.forEach((side) => {
         side.forEach((accountID) => {
+          const entities: any = [];
           if (typeof accountID === 'string') {
             dataService.get('characters', accountID, (characters) => {
-              this.sides.push(characters);
-              characters.forEach((char) => this.room.push(char));
+              characters.forEach((char) => {
+                if (!char.abilities) {
+                  dataService.get('abilities', '-LJVdAlGbcq68v2t7gQ8', (ability) => {
+                    console.log(ability);
+                    char.abilities = [];
+                    char.abilities.push(ability);
+                  });
+                  this.room.push(char);
+                  entities.push(char);
+                }
+              });
+              this.sides.push(entities);
             });
           } else {
-            console.log(this.sides, 'hello moma?');
             this.sides.push(side);
             this.room.push(accountID);
           }
         });
       });
+      this.game.started = true;
     });
-    console.log(this.room);
     this.currentTurn = undefined;
     this.startGame();
   }
@@ -238,7 +250,6 @@ export class GameService {
         this.skipTurn(entity);
       }
     }, 1000);
-    console.log(entity);
     if (!!(entity.activeEffects)) {
       this.effectTurn(entity);
     }
@@ -264,7 +275,7 @@ export class GameService {
   }
 
   updateCurrentTurn() {
-    console.log(this.turns);
+    console.log(this.turns, 'The turns of the game.');
     this.dataService.update('rooms', this.accountService.getAccount().roomId, {currentTurn: this.turns[0]});
   }
 

@@ -30,23 +30,8 @@ export class VampireVillageComponent implements OnInit, AfterViewInit {
   // The sides of the game
   game: any = {sides: [], started: false};
 
-  sides: any[] = [];
-
   constructor(private dataService: DataService, private accountService: AccountService, private gameService: GameService) {
-    // Pulling from the fake data Service
-    // Setting up stuff for Displaying purposes
-    for (const character of this.room.filter(x => x.side === 'human')) {
-      this.characterDisplays.keys.push(Object.keys(character));
-      this.characterDisplays.characters.push(character);
-      this.characterDisplays.healths.push(character.health);
-    }
-    for (const entity of this.room.filter(x => x.side !== 'human')) {
-      this.enemyDisplays.entities.push(entity);
-      this.enemyDisplays.healths.push(entity.health);
-    }
-    this.game.sides = this.room.map(item => item.side).filter((value, index, self) => self.indexOf(value) === index);
-    // Initial setup of the game
-    // this.sortTurns();
+    console.log(gameService.sides, gameService.room, this.gameService.turnTime, this.gameService.currentTurn);
   }
 
   ngOnInit() {
@@ -54,6 +39,41 @@ export class VampireVillageComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     // this.startGame();
+    console.log(this.gameService.sides, this.gameService.room, this.gameService.turnTime, this.gameService.currentTurn);
+    this.waitSetUpDisplays();
+  }
+  async waitSetUpDisplays() {
+   const interval = setInterval(() => {
+     if (this.gameService.game.started) {
+       this.setUpDisplays();
+       clearInterval(interval);
+     }
+   });
+    await interval;
+  }
+
+  setUpDisplays() {
+    this.gameService.sides.forEach((side) => {
+      console.log('called', this.accountService.getCharacters(), 'help me?');
+      side.forEach((entity) => {
+        let isPlayersCharacter = false;
+        this.accountService.getCharacters().forEach((character) => {
+          console.log(entity, character, 'why do they not match?');
+          if (character.stats.level === entity.stats.level && character.attributes.health === entity.attributes.health
+            && character.name === entity.name) {
+            this.characterDisplays.characters.push(character);
+            this.characterDisplays.healths.push(character);
+            this.characterDisplays.keys.push(Object.keys(character.attributes));
+            isPlayersCharacter = true;
+            console.log(entity, this.enemyDisplays, 'It did work right', character);
+          }
+        });
+        if (!(isPlayersCharacter)) {
+          this.enemyDisplays.entities.push(entity);
+          this.enemyDisplays.healths.push(entity.health);
+        }
+      });
+    });
   }
 
   // Updates the All Displays
@@ -72,10 +92,10 @@ export class VampireVillageComponent implements OnInit, AfterViewInit {
     return entity.abilities.filter((ability) => (ability.currentCooldown <= 0)).length <= 0;
   }
   // //Determines the color of the enemy Entity based on amount of health
-  // calcColor(entity, health) {
-  //   let x = 100 - ((entity.health / health) * 100);
-  //   return `rgb(${x}%,${x}%,${x}%)`;
-  // }
+  calcColor(entity, health) {
+    let x = 100 - ((entity.health / health) * 100);
+    return `rgb(${x}%,${x}%,${x}%)`;
+  }
 
   // Checks if the Ability is from an Item, and returns that Item's Name
   checkItemAbility(character, ability) {

@@ -11,6 +11,7 @@ export class AccountService {
   account: any;
   user: any;
   ability: any;
+  characters: any;
 
   constructor(private router: Router, private dataService: DataService) {
     firebase.auth().onAuthStateChanged(user => {
@@ -19,6 +20,11 @@ export class AccountService {
         this.dataService.get('users', this.user.id, account => {
           this.account = account;
         });
+        console.log(this.account, 'Player Account');
+        this.dataService.get('characters', this.user.id, characters => {
+          this.characters = characters;
+        });
+        console.log(this.characters, 'Player characters');
         this.dataService.get('abilities', '-LJVdAlGbcq68v2t7gQ8', (ability) => (this.ability = ability));
       }
     });
@@ -75,7 +81,6 @@ export class AccountService {
 
   createVampire(lvl) {
     const vampires = [];
-    console.log(this.ability, 'help?')
     for (let x = 0; x < (this.rndInt(lvl / 5)) + 1; x++) {
       // Character name, side, health, attack, defence, accuracy, agility, resistance, abilities
       vampires.push(new Entity('Vampire', this.rndIntBtw(20 + lvl, 70 + this.rndInt(lvl * 5)),
@@ -115,5 +120,8 @@ export class AccountService {
   }
   getAccountStats() {
     return {level: this.account.level, experience: this.account.experience, teamName: this.account.teamName};
+  }
+  getCharacters() {
+    return this.characters;
   }
 }

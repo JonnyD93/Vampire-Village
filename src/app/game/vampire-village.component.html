@@ -19,7 +19,7 @@
           <div class="stats">
             <div
               *ngIf="key != 'side'&& key != 'name' && key != 'abilities' && key !='activeEffects' && key !='inventory'">
-              {{key.charAt(0).toUpperCase() + key.slice(1) + ": "+ character[key]}}
+              {{key.charAt(0).toUpperCase() + key.slice(1) + ": "+ character.attributes[key]}}
             </div>
           </div>
           <div *ngIf="key == 'activeEffects'">
@@ -44,7 +44,7 @@
         <div class='itemName' *ngIf="checkItemAbility(character,ability)!=''">{{checkItemAbility(character,ability)}}</div>
       </div>
       </label>
-      <div *ngIf="ability.currentCooldown>0" class="btn ability-disabled-ui disabled">{{ability.name}}
+      <div *ngIf="ability.currentCooldown > 0" class="btn ability-disabled-ui disabled">{{ability.name}}
         <div class='itemName' *ngIf="checkItemAbility(character,ability)!=''">{{checkItemAbility(character,ability)}}
         </div>
         <span class="ability-disabled-ui-cooldown"> {{ability.currentCooldown}}</span>
