@@ -25,13 +25,10 @@ export class VampireVillageComponent implements OnInit, AfterViewInit {
   hits: any = [];
   // The amount of time for each turn
   turnTime: any = 0;
-  // The interval of the game
-  interval: any;
   // The sides of the game
   game: any = {sides: [], started: false};
 
-  constructor(private dataService: DataService, private accountService: AccountService, private gameService: GameService) {
-    console.log(gameService.sides, gameService.room, this.gameService.turnTime, this.gameService.currentTurn);
+  constructor(private accountService: AccountService, private gameService: GameService) {
   }
 
   ngOnInit() {
@@ -54,18 +51,15 @@ export class VampireVillageComponent implements OnInit, AfterViewInit {
 
   setUpDisplays() {
     this.gameService.sides.forEach((side) => {
-      console.log('called', this.accountService.getCharacters(), 'help me?');
       side.forEach((entity) => {
         let isPlayersCharacter = false;
         this.accountService.getCharacters().forEach((character) => {
-          console.log(entity, character, 'why do they not match?');
           if (character.stats.level === entity.stats.level && character.attributes.health === entity.attributes.health
             && character.name === entity.name) {
             this.characterDisplays.characters.push(character);
             this.characterDisplays.healths.push(character);
             this.characterDisplays.keys.push(Object.keys(character.attributes));
             isPlayersCharacter = true;
-            console.log(entity, this.enemyDisplays, 'It did work right', character);
           }
         });
         if (!(isPlayersCharacter)) {

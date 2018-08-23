@@ -73,8 +73,8 @@
 <div class="modal-start-wrapper" *ngIf="!(game.started)">
   <div class="modal-start">
     <div *ngFor="let side of game.sides; let i = index">
-      <span  *ngIf="i<(game.sides.length-1)">{{side.charAt(0).toUpperCase() + side.slice(1)}}s V.S. </span>
-      <span *ngIf="i>=(game.sides.length-1)"> {{' '+game.sides[game.sides.length-1].charAt(0).toUpperCase() + game.sides[game.sides.length-1].slice(1)}}s</span>
+      <span  *ngIf="i < (game.sides.length-1)">{{side.charAt(0).toUpperCase() + side.slice(1)}}s V.S. </span>
+      <span *ngIf="i >= (game.sides.length-1)"> {{' '+game.sides[game.sides.length-1].charAt(0).toUpperCase() + game.sides[game.sides.length-1].slice(1)}}s</span>
   </div>
   </div>
 </div>

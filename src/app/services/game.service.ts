@@ -34,13 +34,12 @@ export class GameService {
       this.room = [];
       room.sides.forEach((side) => {
         side.forEach((accountID) => {
-          const entities: any = [];
+          const entities: any = []; // Used to assign the abilities
           if (typeof accountID === 'string') {
             dataService.get('characters', accountID, (characters) => {
               characters.forEach((char) => {
                 if (!char.abilities) {
-                  dataService.get('abilities', '-LJVdAlGbcq68v2t7gQ8', (ability) => {
-                    console.log(ability);
+                  dataService.get('abilities', '-LJVdAlGbcq68v2t7gQ8', (ability) => { // Sets the ability to Punch if the user has no abilities assigned
                     char.abilities = [];
                     char.abilities.push(ability);
                   });
@@ -56,8 +55,10 @@ export class GameService {
           }
         });
       });
-      this.game.started = true;
     });
+    console.log(this.room, 'pushing of thy room');
+    dataService.update('rooms', this.accountService.getRoomId(), {room: this.room});
+    this.game.started = true;
     this.currentTurn = undefined;
     this.startGame();
   }
@@ -101,7 +102,14 @@ export class GameService {
 
   // Checks who turn it is
   checkCurrentTurn() {
-    this.dataService.get('rooms', this.accountService.getAccount().roomId, (room) => (this.currentTurn = room.currentTurn));
+    this.dataService.get('rooms', this.accountService.getRoomId(), (room) => (this.currentTurn = room.currentTurn));
+  }
+
+  // checksTheCurrentTurnTime
+  checkCurrentTurnTime() {
+    this.dataService.subscribe('rooms', this.accountService.getRoomId(), (room)=>{
+      this.turnTime = room.turnTime;
+    })
   }
 
   // Checks if the entity is dead
@@ -210,6 +218,7 @@ export class GameService {
 
   // Sorts the Turns based on Agility
   sortTurns() {
+    this.checkTeamDefeated();
     this.turns = [];
     this.room.forEach((entity) => {
       this.turns.push(entity);
@@ -275,17 +284,16 @@ export class GameService {
   }
 
   updateCurrentTurn() {
-    console.log(this.turns, 'The turns of the game.');
-    this.dataService.update('rooms', this.accountService.getAccount().roomId, {currentTurn: this.turns[0]});
+    this.dataService.update('rooms', this.accountService.getRoomId(), {currentTurn: (this.turns[0]) ? this.turns[0] : this.sortTurns()});
   }
 
   updateReport(str) {
     this.report.push(str);
-    this.dataService.update('rooms', this.accountService.getAccount().roomId, {report: this.report});
+    this.dataService.update('rooms', this.accountService.getRoomId(), {report: this.report});
   }
 
   updateTurnTime(time) {
-    this.dataService.update('rooms', this.accountService.getAccount().roomId, {turnTime: time});
+    this.dataService.update('rooms', this.accountService.getRoomId(), {turnTime: time});
   }
 
   getSides() {

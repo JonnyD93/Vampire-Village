@@ -121,6 +121,9 @@ export class AccountService {
   getAccountStats() {
     return {level: this.account.level, experience: this.account.experience, teamName: this.account.teamName};
   }
+  getRoomId() {
+    return (this.account.roomId) ? this.account.roomId : '';
+  }
   getCharacters() {
     return this.characters;
   }
