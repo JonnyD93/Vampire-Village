@@ -1,6 +1,9 @@
 input{
   width: 25% !important;
 }
+#ability-btn {
+  display: inline-block !important;
+}
 .input-field{
   width: 75% !important;
   line-height: 8px;

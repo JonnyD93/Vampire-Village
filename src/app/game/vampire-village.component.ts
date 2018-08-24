@@ -11,14 +11,11 @@ import {GameService} from '../services/game.service';
 export class VampireVillageComponent implements OnInit, AfterViewInit {
   // The entire list of what the database will hold will be removed from here
   // PlayerData: { level: number, experience: number, inventory: any[], characters: any[]};
-  // Array for all entitys in the game
-  room: any[] = [];
   // Each characters different type of Object Keys, as a separate variable
-  characterDisplays: any = {keys: [], characters: [], healths: []};
+  characterDisplays: any = { characters: [], healths: []};
+  attributeKeys: any = [];
   allyDisplays: any = {entities: [], healths: []};
   enemyDisplays: any = {entities: [], healths: []};
-  // The turns variable is populated with the turns of the game
-  turns: any[] = [];
   // The report of the match
   report: any[] = [];
   // The hits that pop up when a creature is attacked.
@@ -36,9 +33,9 @@ export class VampireVillageComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     // this.startGame();
-    console.log(this.gameService.sides, this.gameService.room, this.gameService.turnTime, this.gameService.currentTurn);
     this.waitSetUpDisplays();
   }
+
   async waitSetUpDisplays() {
    const interval = setInterval(() => {
      if (this.gameService.game.started) {
@@ -50,24 +47,22 @@ export class VampireVillageComponent implements OnInit, AfterViewInit {
   }
 
   setUpDisplays() {
-    this.gameService.sides.forEach((side) => {
-      side.forEach((entity) => {
-        let isPlayersCharacter = false;
-        this.accountService.getCharacters().forEach((character) => {
-          if (character.stats.level === entity.stats.level && character.attributes.health === entity.attributes.health
-            && character.name === entity.name) {
-            this.characterDisplays.characters.push(character);
-            this.characterDisplays.healths.push(character);
-            this.characterDisplays.keys.push(Object.keys(character.attributes));
-            isPlayersCharacter = true;
+    this.gameService.room.forEach((entity) => {
+       let isPlayersCharacter = false;
+      this.accountService.getCharacters().forEach((character) => {
+        if (this.accountService.compareStats(entity, character)) {
+              this.characterDisplays.characters.push(character);
+              this.attributeKeys = Object.keys(character.attributes);
+              this.characterDisplays.healths.push(character.attributes.health);
+              isPlayersCharacter = true;
+            }
+          });
+          if (!(isPlayersCharacter)) {
+            this.enemyDisplays.entities.push(entity);
+            this.enemyDisplays.healths.push(entity.attributes.health);
           }
-        });
-        if (!(isPlayersCharacter)) {
-          this.enemyDisplays.entities.push(entity);
-          this.enemyDisplays.healths.push(entity.health);
-        }
-      });
     });
+    console.log('Important Info: ', this.characterDisplays, this.enemyDisplays);
   }
 
   // Updates the All Displays
@@ -87,37 +82,40 @@ export class VampireVillageComponent implements OnInit, AfterViewInit {
   }
   // //Determines the color of the enemy Entity based on amount of health
   calcColor(entity, health) {
-    let x = 100 - ((entity.health / health) * 100);
+    const x = 100 - ((entity.attributes.health / health) * 100);
     return `rgb(${x}%,${x}%,${x}%)`;
+  }
+  // Function to detect the current Health of the Current Player
+  calcHealth(currentHealth, maxHealth) {
+    return Math.round((currentHealth / maxHealth) * 100);
   }
 
   // Checks if the Ability is from an Item, and returns that Item's Name
   checkItemAbility(character, ability) {
     let itemName = '';
-    if (character.inventory.length > 0)
+    if (character.inventory.length > 0) {
       character.inventory.forEach((item) => {
-        if (item.itemAbilities != null)
+        if (item.itemAbilities != null) {
           item.itemAbilities.forEach((abilityItem) => {
             itemName = (ability === abilityItem) ? `( ${item.name} )` : '';
           });
+        }
       });
+    }
     return itemName;
   }
 
   // Needs to be fixed
   checkLastActiveAbility(ability) {
+    if (!ability.currentCooldown){
+      ability.currentCooldown = 0;
+    }
     return (ability.currentCooldown <= 0);
-  }
-
-  // Checks if a team is defeated
-  checkTeamDefeated() {
-    return ((this.room.filter((entity) => entity === this.enemyDisplays.entities[0])).length === 0) ||
-      ((this.room.filter((entity) => entity === this.characterDisplays.characters[0])).length === 0);
   }
 
   // Function to detect which player is active, and return true or false on it.
   checkPlayerActive(character) {
-    return ((this.turns !== undefined) && (this.turns[0] === character));
+    return this.gameService.checkPlayerActive(character);
   }
 
   // Creates an hit object to display Players damage on a given target

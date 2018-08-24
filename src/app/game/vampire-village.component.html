@@ -13,15 +13,10 @@
   <div class="row" style="z-index: 10">
     <div *ngFor="let character of characterDisplays.characters; let i = index" >
       <div class="card character-stat col s2" [ngClass]="{death: character.death, activeTurn: character.activeTurn, endTurn:!character.activeTurn, targeted:character.targeted}">
-        <div *ngFor="let key of characterDisplays.keys[0]">
-          <div class="card-title" *ngIf="key =='name'">{{character[key]}}<i
-            class="material-icons downArrow " (click)="attack(character)">my_location</i></div>
-          <div class="stats">
-            <div
-              *ngIf="key != 'side'&& key != 'name' && key != 'abilities' && key !='activeEffects' && key !='inventory'">
-              {{key.charAt(0).toUpperCase() + key.slice(1) + ": "+ character.attributes[key]}}
-            </div>
-          </div>
+        <div class="card-title">{{character.name}}<i
+          class="material-icons downArrow " (click)="attack(character)">my_location</i></div>
+        <div *ngFor="let key of attributeKeys">
+          <div class="stats">{{key.charAt(0).toUpperCase() + key.slice(1) + ": "+ character.attributes[key]}}</div>
           <div *ngIf="key == 'activeEffects'">
             <div class="effect" *ngFor="let effect of character.activeEffects; let j = index"
                  [style.background-color]="effect.color" [style.z-index]="-1-j" [style.left]="(j*10)-5+'px'"></div>
@@ -37,11 +32,11 @@
       class="material-icons skip-turn-icon">access_time</i></div></span>
     <span><div class="btn skip-turn-btn" style="top: 32px;"><i class="material-icons skip-turn-icon">backspace</i></div></span>
     <span class="player-ui">{{character.name}}</span>
-    <span *ngFor="let ability of character.abilities; let j = index">
+    <div style='display: inline-block'  *ngFor="let ability of character.abilities; let j = index">
       <label>
       <input class="with-gap" name="abilities" type="radio" [checked]="checkLastActiveAbility(ability)"/>
-      <div class="btn" *ngIf="ability.currentCooldown <= 0">{{ability.name}}
-        <div class='itemName' *ngIf="checkItemAbility(character,ability)!=''">{{checkItemAbility(character,ability)}}</div>
+      <div class="btn ">{{ability.name}}
+        <!--<div class='itemName' *ngIf="checkItemAbility(character,ability)!=''">{{checkItemAbility(character,ability)}}</div>-->
       </div>
       </label>
       <div *ngIf="ability.currentCooldown > 0" class="btn ability-disabled-ui disabled">{{ability.name}}
@@ -49,9 +44,9 @@
         </div>
         <span class="ability-disabled-ui-cooldown"> {{ability.currentCooldown}}</span>
       </div>
-    </span>
+    </div>
     <div class="progress">
-      <div class="determinate" [style.width]="(calcHealth(character.health,characterDisplays.healths[i]))+'%'"></div>
+      <div class="determinate" [style.width]="(calcHealth(character.attributes.health,characterDisplays.healths[i]))+'%'"></div>
     </div>
   </nav>
 </div>
@@ -59,7 +54,7 @@
   <nav class="entity-ui"  *ngIf="checkPlayerActive(character)">
     <span class="entity-name">{{character.name}}</span>
     <div class="progress">
-      <div class="determinate" [style.width]="(calcHealth(character.health,enemyDisplays.healths[i]))+'%'"></div>
+      <div class="determinate" [style.width]="(calcHealth(character.attributes.health,enemyDisplays.healths[i]))+'%'"></div>
     </div>
   </nav>
 </div>

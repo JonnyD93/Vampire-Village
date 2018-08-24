@@ -10,7 +10,7 @@ export class AccountService {
 
   account: any;
   user: any;
-  ability: any;
+  ability: any[] = [];
   characters: any;
 
   constructor(private router: Router, private dataService: DataService) {
@@ -20,12 +20,12 @@ export class AccountService {
         this.dataService.get('users', this.user.id, account => {
           this.account = account;
         });
-        console.log(this.account, 'Player Account');
         this.dataService.get('characters', this.user.id, characters => {
           this.characters = characters;
         });
-        console.log(this.characters, 'Player characters');
-        this.dataService.get('abilities', '-LJVdAlGbcq68v2t7gQ8', (ability) => (this.ability = ability));
+        this.dataService.get('abilities', '', (ability) => {
+          this.ability = ability.filter((abilityD) => (abilityD.name === 'Punch'));
+        });
       }
     });
   }
@@ -49,7 +49,9 @@ export class AccountService {
   checkSignedIn() {
     return !!(this.user);
   }
-
+  compareStats(entity1, entity2) {
+    return JSON.stringify(entity1) === JSON.stringify(entity2) ;
+  }
   createAccount(teamName) {
     if (this.checkSignedIn()) {
       this.dataService.save('users', this.user.id, {
@@ -68,15 +70,15 @@ export class AccountService {
   createCharacter(name, health, attack, accuracy, agility, resistance) {
     if (this.checkSignedIn()) {
       this.dataService.save('characters', this.user.id,
-        [new Entity(name, health, attack, 0, accuracy, agility, resistance, [])]
+        [new Entity(name, health, attack, 0, accuracy, agility, resistance, this.ability)]
       );
     }
   }
 
   createPVERoom() {
     this.dataService.update('users', this.user.id, {roomId:
-        this.dataService.add('rooms', { sides: [[this.user.id], this.createVampire(this.getAccount().level)], turnTime: 0, report: []})
-    });
+        this.dataService.add('rooms', { sides: [[{entities: this.characters, teamName: this.account.teamName, cpu: false}],
+            [{entities: this.createVampire(this.getAccount().level), teamName: 'Vampires', cpu: true}]], turnTime: 0})});
   }
 
   createVampire(lvl) {
@@ -86,7 +88,7 @@ export class AccountService {
       vampires.push(new Entity('Vampire', this.rndIntBtw(20 + lvl, 70 + this.rndInt(lvl * 5)),
         this.rndIntBtw(this.rndInt(lvl), this.rndInt(lvl * 2)), this.rndIntBtw(Math.floor(lvl / 5), this.rndInt(Math.floor(lvl / 2))),
         this.rndIntBtw(60, 100), this.rndIntBtw(this.rndInt(lvl), lvl + 10), this.rndIntBtw(0, this.rndInt(lvl)),
-        [this.ability]));
+        this.ability));
     }
     return vampires;
   }

@@ -11,8 +11,9 @@ export class DataService {
   }
 
   database(path?: string) {
-    if (path)
+    if (path) {
       return this.firebase.ref(path);
+    }
     return this.firebase;
   }
 
@@ -30,13 +31,13 @@ export class DataService {
 
   get(path: string, key: string, onLoad) {
     this.database(path + this.key(key)).once('value').then(snapshot => {
-      let data = snapshot.val();
+      const data = snapshot.val();
       onLoad(key ? Object.assign([], data) : this.list(data));
     });
   }
   subscribe(path: string, key: string, onChange: any) {
     this.database(path + this.key(key)).on('value', snapshot => {
-      let data = snapshot.val();
+      const data = snapshot.val();
       onChange(key ? Object.assign({id: key}, data) : this.list(data));
     });
   }
@@ -70,7 +71,7 @@ export class DataService {
   }
   // Finds an Ability given a string
   getAbilities(string) {
-    let ability: any = [];
+    const ability: any = [];
     this.get('abilities', '', data => {
       data = data || [];
       ability.push(data.filter((abilityD) => abilityD.id === string));

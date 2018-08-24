@@ -8,8 +8,8 @@ import {DataService} from './data.service';
 
 @Injectable()
 export class GameService {
-  database: any;
-  // Array for all entitys in the game
+
+  // Array for all entities in the game
   room: any[] = [];
   // The turns variable is populated with the turns of the game
   turns: any[] = [];
@@ -22,43 +22,18 @@ export class GameService {
   // The sides of the game
   game: any = {sides: [], started: false};
   // currentTurn: any;
-  sides: any = [];
   teamDefeated: boolean;
   activeAbilities: boolean;
   currentTurn: any;
 
   constructor(private accountService: AccountService, private dataService: DataService, private effectsService: EffectsService) {
-    this.database = firebase.database(); // Sets the database to the firebase database
-    dataService.get('rooms', this.accountService.getAccount().roomId, (room) => { // Subscribes to the data Service
-      this.sides = [];
+    dataService.get('rooms', this.accountService.getRoomId(), (room) => { // Gets the data Service
+      this.game.sides = room.sides;
       this.room = [];
       room.sides.forEach((side) => {
-        side.forEach((accountID) => {
-          const entities: any = []; // Used to assign the abilities
-          if (typeof accountID === 'string') {
-            dataService.get('characters', accountID, (characters) => {
-              characters.forEach((char) => {
-                if (!char.abilities) {
-                  dataService.get('abilities', '-LJVdAlGbcq68v2t7gQ8', (ability) => { // Sets the ability to Punch if the user has no abilities assigned
-                    char.abilities = [];
-                    char.abilities.push(ability);
-                  });
-                  this.room.push(char);
-                  entities.push(char);
-                }
-              });
-              this.sides.push(entities);
-            });
-          } else {
-            this.sides.push(side);
-            this.room.push(accountID);
-          }
-        });
-      });
+        side.forEach((account) => {account.entities.forEach((entity) => (this.room.push(entity))); }); });
+      this.game.started = true;
     });
-    console.log(this.room, 'pushing of thy room');
-    dataService.update('rooms', this.accountService.getRoomId(), {room: this.room});
-    this.game.started = true;
     this.currentTurn = undefined;
     this.startGame();
   }
@@ -94,22 +69,19 @@ export class GameService {
     }
   }
 
-
-  // Function to detect the current Health of the Current Player
-  calcHealth(currentHealth, maxHealth) {
-    return Math.round((currentHealth / maxHealth) * 100);
-  }
-
   // Checks who turn it is
   checkCurrentTurn() {
     this.dataService.get('rooms', this.accountService.getRoomId(), (room) => (this.currentTurn = room.currentTurn));
   }
-
+  checkPlayerActive(character) {
+    this.checkCurrentTurn();
+    return (this.currentTurn) ? (character.name === this.currentTurn.name) : false;
+  }
   // checksTheCurrentTurnTime
   checkCurrentTurnTime() {
-    this.dataService.subscribe('rooms', this.accountService.getRoomId(), (room)=>{
+    this.dataService.subscribe('rooms', this.accountService.getRoomId(), (room) => {
       this.turnTime = room.turnTime;
-    })
+    });
   }
 
   // Checks if the entity is dead
@@ -128,11 +100,11 @@ export class GameService {
 
   // Checks if a team is defeated
   checkTeamDefeated() {
-    this.dataService.get('room', this.accountService.getAccount().roomId, (room) => (this.teamDefeated = (room.sides.length <= 1)));
+    this.dataService.get('rooms', this.accountService.getRoomId(), (room) => this.teamDefeated = (room.sides.length <= 1));
   }
 
   checkTurnTime() {
-    this.dataService.get('room', this.accountService.getAccount().roomId, (room) => (this.turnTime = room.turnTime));
+    this.dataService.get('rooms', this.accountService.getRoomId(), (room) => (this.turnTime = room.turnTime));
   }
 
   async damageCalculation(attacker, defender, abilitySelected) {
@@ -186,7 +158,9 @@ export class GameService {
 
   // Entity Ai
   entityAttack(entity) {
-    const enemies = this.room.filter(x => x.side !== entity.side);
+    const enemies = [];
+    this.game.sides.forEach((side) => {side.filter((account) => (!account.cpu)).forEach((account) => {
+      account.entities.forEach((enemy) => enemies.push(enemy)); }); });
     const index = Math.floor(Math.random() * enemies.length);
     const defender = this.room[this.room.indexOf(enemies[index])];
     this.damageCalculation(entity, defender, this.rndInt(entity.abilities.length - 1));
@@ -264,7 +238,7 @@ export class GameService {
     }
     if (!!(entity.abilities)) {
       entity.abilities.forEach((ability) => ability.currentCooldown--);
-      this.dataService.get('rooms', this.accountService.getAccount().roomId,
+      this.dataService.get('rooms', this.accountService.getRoomId(),
         (room) => this.activeAbilities = (room.currentTurn.abilities.filter((ability) => (ability.currentCooldown <= 0)).length <= 0));
       if (this.activeAbilities) {
         clearInterval(this.interval);
@@ -296,7 +270,7 @@ export class GameService {
     this.dataService.update('rooms', this.accountService.getRoomId(), {turnTime: time});
   }
 
-  getSides() {
-
+  getDisplayData() {
+    return this.game.sides;
   }
 }
