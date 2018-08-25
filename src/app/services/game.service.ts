@@ -23,7 +23,6 @@ export class GameService {
   game: any = {sides: [], started: false};
   // currentTurn: any;
   teamDefeated: boolean;
-  activeAbilities: boolean;
   currentTurn: any;
 
   constructor(private accountService: AccountService, private dataService: DataService, private effectsService: EffectsService) {
@@ -31,7 +30,10 @@ export class GameService {
       this.game.sides = room.sides;
       this.room = [];
       room.sides.forEach((side) => {
-        side.forEach((account) => {account.entities.forEach((entity) => (this.room.push(entity))); }); });
+        side.forEach((account) => {
+          account.entities.forEach((entity) => (this.room.push(entity)));
+        });
+      });
       this.game.started = true;
     });
     this.currentTurn = undefined;
@@ -57,26 +59,34 @@ export class GameService {
 
   // Click Action for the Player
   attack(abilitySelected, defender) {
-    if (this.turns.length >= 1) {
-      const attacker = this.currentTurn;
-      if (attacker.side === 'human' && defender !== attacker && !(attacker.health <= 0) && (abilitySelected !== -1)) {
+    this.accountService.getAccount().characters.forEach((character) => {
+      if (this.checkPlayerActive(character)) {
         clearInterval(this.interval);
-        this.damageCalculation(attacker, defender, abilitySelected);
-        this.skipTurn(attacker);
+        this.damageCalculation(character, defender, abilitySelected);
+        this.skipTurn(character);
       }
-    } else {
-      this.turnSystem();
-    }
+      console.log(character, this.checkPlayerActive(character), defender, abilitySelected, 'hello?')
+    });
+
+  }
+
+  checkAnyActiveAbilities(){
+    let anyActiveAbilities = false;
+    this.dataService.get('rooms', this.accountService.getRoomId(),
+      (room) => anyActiveAbilities = (room.currentTurn.abilities.filter((ability) => (ability.currentCooldown <= 0)).length >= 1));
+    return anyActiveAbilities;
   }
 
   // Checks who turn it is
   checkCurrentTurn() {
     this.dataService.get('rooms', this.accountService.getRoomId(), (room) => (this.currentTurn = room.currentTurn));
   }
+
   checkPlayerActive(character) {
     this.checkCurrentTurn();
     return (this.currentTurn) ? (character.name === this.currentTurn.name) : false;
   }
+
   // checksTheCurrentTurnTime
   checkCurrentTurnTime() {
     this.dataService.subscribe('rooms', this.accountService.getRoomId(), (room) => {
@@ -112,7 +122,7 @@ export class GameService {
     const type = ability.type;
     const attack = Math.floor(attacker.attack * attacker.abilities[abilitySelected].damageMultiplier);
     const defend = this.rndInt(defender.defense);
-    defender.targeted = true;
+    // defender.targeted = true;
     ability.currentCooldown = ability.cooldown;
     if ((attacker.attributes.accuracy >= this.rndInt(100 + defender.attributes.agility))) {
       this.applyEffect(defender, ability);
@@ -136,7 +146,7 @@ export class GameService {
     }
     // this.spawnToast(attacker.name + ' missed', '#00bb00');
     await this.delay(1000, 1);
-    defender.targeted = false;
+    //defender.targeted = false;
   }
 
   // Calculates the Effect damage for that turn
@@ -159,8 +169,11 @@ export class GameService {
   // Entity Ai
   entityAttack(entity) {
     const enemies = [];
-    this.game.sides.forEach((side) => {side.filter((account) => (!account.cpu)).forEach((account) => {
-      account.entities.forEach((enemy) => enemies.push(enemy)); }); });
+    this.game.sides.forEach((side) => {
+      side.filter((account) => (!account.cpu)).forEach((account) => {
+        account.entities.forEach((enemy) => enemies.push(enemy));
+      });
+    });
     const index = Math.floor(Math.random() * enemies.length);
     const defender = this.room[this.room.indexOf(enemies[index])];
     this.damageCalculation(entity, defender, this.rndInt(entity.abilities.length - 1));
@@ -176,6 +189,26 @@ export class GameService {
     }
   }
 
+  // Creates a title for the match
+  getTitleOfMatch() {
+    let title = '';
+    this.game.sides.forEach((side) => {
+      side.forEach((account) => {
+        if (side.length >= 2) {
+          title += `${account.teamName} && `
+        } else {
+          title += account.teamName;
+        }
+        if (side.indexOf(account) === side.length - 1) {
+          title.substring(0, title.length - 3);
+        }
+      });
+      if (!(this.game.sides.indexOf(side) === this.game.sides.length - 1)) {
+        title += '\n V.S. \n';
+      }
+    });
+    return title;
+  }
   // Function that returns a random int up to x
   rndInt(x: number) {
     return Math.round(Math.random() * x);
@@ -238,9 +271,8 @@ export class GameService {
     }
     if (!!(entity.abilities)) {
       entity.abilities.forEach((ability) => ability.currentCooldown--);
-      this.dataService.get('rooms', this.accountService.getRoomId(),
-        (room) => this.activeAbilities = (room.currentTurn.abilities.filter((ability) => (ability.currentCooldown <= 0)).length <= 0));
-      if (this.activeAbilities) {
+
+      if (this.checkAnyActiveAbilities()) {
         clearInterval(this.interval);
         return this.skipTurn(entity);
       }
@@ -270,7 +302,5 @@ export class GameService {
     this.dataService.update('rooms', this.accountService.getRoomId(), {turnTime: time});
   }
 
-  getDisplayData() {
-    return this.game.sides;
-  }
+
 }

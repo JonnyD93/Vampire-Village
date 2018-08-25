@@ -2,8 +2,8 @@
   <div class="row">
     <div style="padding-top: 32px;">
       <div class="col s2" style="z-index: 10" *ngFor="let entity of enemyDisplays.entities; let i = index">
-        <div class="btn vampire" [ngClass]="{death: entity.death,activeTurn: entity.activeTurn, endTurn:!entity.activeTurn, targeted:entity.targeted}"
-             [style.background-color]="calcColor(entity,enemyDisplays.healths[i])" (click)="attack(entity)">
+        <div class="btn vampire" [ngClass]="{death: entity.death, activeTurn: entity.activeTurn, endTurn: !entity.activeTurn, targeted: entity.targeted}"
+             [style.background-color]="calcColor(entity, enemyDisplays.healths[i])" (click)="attack(entity)">
           {{entity.name}}
         </div>
         <div *ngIf="!entity.death"><div class="entity-effect" *ngFor="let effect of enemyDisplays.entities[i].activeEffects; let j = index" [style.background-color]="effect.color" [style.z-index]="-1-j" [style.bottom]="36-j+'px'"></div></div>
@@ -34,7 +34,7 @@
     <span class="player-ui">{{character.name}}</span>
     <div style='display: inline-block'  *ngFor="let ability of character.abilities; let j = index">
       <label>
-      <input class="with-gap" name="abilities" type="radio" [checked]="checkLastActiveAbility(ability)"/>
+      <input class="with-gap" name="abilities" type="radio" checked/>
       <div class="btn ">{{ability.name}}
         <!--<div class='itemName' *ngIf="checkItemAbility(character,ability)!=''">{{checkItemAbility(character,ability)}}</div>-->
       </div>
@@ -65,11 +65,6 @@
     <!--<div class="modalz-report" id="report"><div *ngFor="let text of this.report">{{text}}</div></div>-->
   <!--</div>-->
 <!--</div>-->
-<div class="modal-start-wrapper" *ngIf="!(game.started)">
-  <div class="modal-start">
-    <div *ngFor="let side of game.sides; let i = index">
-      <span  *ngIf="i < (game.sides.length-1)">{{side.charAt(0).toUpperCase() + side.slice(1)}}s V.S. </span>
-      <span *ngIf="i >= (game.sides.length-1)"> {{' '+game.sides[game.sides.length-1].charAt(0).toUpperCase() + game.sides[game.sides.length-1].slice(1)}}s</span>
-  </div>
-  </div>
+<div class="modal-start-wrapper" *ngIf="!(started)">
+  <div class="modal-start">{{title}}</div>
 </div>

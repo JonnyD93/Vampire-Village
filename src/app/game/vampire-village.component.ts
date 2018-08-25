@@ -9,21 +9,21 @@ import {GameService} from '../services/game.service';
   styleUrls: ['./vampire-village.component.css']
 })
 export class VampireVillageComponent implements OnInit, AfterViewInit {
-  // The entire list of what the database will hold will be removed from here
-  // PlayerData: { level: number, experience: number, inventory: any[], characters: any[]};
+
   // Each characters different type of Object Keys, as a separate variable
   characterDisplays: any = { characters: [], healths: []};
   attributeKeys: any = [];
-  allyDisplays: any = {entities: [], healths: []};
-  enemyDisplays: any = {entities: [], healths: []};
+  abilityDisplays: any;
+  allyDisplays: any = {entities: [], healths: []}; // Will be used when allies are implemented
+  enemyDisplays: any = {entities: [], healths: []}; // The enemy displays
   // The report of the match
   report: any[] = [];
   // The hits that pop up when a creature is attacked.
   hits: any = [];
   // The amount of time for each turn
   turnTime: any = 0;
-  // The sides of the game
-  game: any = {sides: [], started: false};
+  title: string = '';
+  started: boolean = false;
 
   constructor(private accountService: AccountService, private gameService: GameService) {
   }
@@ -37,50 +37,34 @@ export class VampireVillageComponent implements OnInit, AfterViewInit {
   }
 
   async waitSetUpDisplays() {
-   const interval = setInterval(() => {
-     if (this.gameService.game.started) {
-       this.setUpDisplays();
-       clearInterval(interval);
+   const interval = setInterval(() => { // Creates an interval to check if the game has been loaded.
+     if (this.gameService.game.started) { // Checks if the game service has been started
+       this.setUpDisplays(); // Sets the Displays Up
+       this.title = this.gameService.getTitleOfMatch(); // Receives the title of the Match
+       clearInterval(interval); //Clears the interval to check if everything is loaded
+       setTimeout(() => (this.started = true), 5000); // Hides the modal after the game has started;
      }
    });
     await interval;
   }
 
-  setUpDisplays() {
-    this.gameService.room.forEach((entity) => {
-       let isPlayersCharacter = false;
-      this.accountService.getCharacters().forEach((character) => {
-        if (this.accountService.compareStats(entity, character)) {
-              this.characterDisplays.characters.push(character);
-              this.attributeKeys = Object.keys(character.attributes);
-              this.characterDisplays.healths.push(character.attributes.health);
-              isPlayersCharacter = true;
-            }
-          });
-          if (!(isPlayersCharacter)) {
-            this.enemyDisplays.entities.push(entity);
-            this.enemyDisplays.healths.push(entity.attributes.health);
-          }
-    });
-    console.log('Important Info: ', this.characterDisplays, this.enemyDisplays);
+  attack(defender) {
+    let abilitySelected = 0;
+    this.gameService.attack(abilitySelected,defender)
   }
 
   // Updates the All Displays
-  updateDisplays(defender): void {
-    return (this.characterDisplays.characters.indexOf(defender) !== -1)
-      ? Object.keys(this.characterDisplays).forEach((key) => {
-        this.characterDisplays[key].splice(this.characterDisplays.characters.indexOf(defender), 1);
-      })
-      : Object.keys(this.enemyDisplays).forEach((key) => {
-        this.enemyDisplays[key].splice(this.enemyDisplays.entities.indexOf(defender), 1);
-      });
-  }
+  // updateDisplays(defender): void {
+  //   return (this.characterDisplays.characters.indexOf(defender) !== -1)
+  //     ? Object.keys(this.characterDisplays).forEach((key) => {
+  //       this.characterDisplays[key].splice(this.characterDisplays.characters.indexOf(defender), 1);
+  //     })
+  //     : Object.keys(this.enemyDisplays).forEach((key) => {
+  //       this.enemyDisplays[key].splice(this.enemyDisplays.entities.indexOf(defender), 1);
+  //     });
+  // }
 
-  // Checks if there is any active abilities
-  checkAnyActiveAbilities(entity) {
-    return entity.abilities.filter((ability) => (ability.currentCooldown <= 0)).length <= 0;
-  }
-  // //Determines the color of the enemy Entity based on amount of health
+  // Determines the color of the enemy Entity based on amount of health
   calcColor(entity, health) {
     const x = 100 - ((entity.attributes.health / health) * 100);
     return `rgb(${x}%,${x}%,${x}%)`;
@@ -105,17 +89,28 @@ export class VampireVillageComponent implements OnInit, AfterViewInit {
     return itemName;
   }
 
-  // Needs to be fixed
-  checkLastActiveAbility(ability) {
-    if (!ability.currentCooldown){
-      ability.currentCooldown = 0;
-    }
-    return (ability.currentCooldown <= 0);
-  }
-
   // Function to detect which player is active, and return true or false on it.
   checkPlayerActive(character) {
     return this.gameService.checkPlayerActive(character);
+  }
+
+  // Sets up the Displays for the game
+  setUpDisplays() {
+    this.gameService.room.forEach((entity) => {
+      let isPlayersCharacter = false;
+      this.accountService.getCharacters().forEach((character) => {
+        if (this.accountService.compareStats(entity, character)) {
+          this.characterDisplays.characters.push(character);
+          this.attributeKeys = Object.keys(character.attributes);
+          this.characterDisplays.healths.push(character.attributes.health);
+          isPlayersCharacter = true;
+        }
+      });
+      if (!(isPlayersCharacter)) {
+        this.enemyDisplays.entities.push(entity);
+        this.enemyDisplays.healths.push(entity.attributes.health);
+      }
+    });
   }
 
   // Creates an hit object to display Players damage on a given target
