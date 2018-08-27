@@ -40,8 +40,8 @@
       </div>
       </label>
       <div *ngIf="ability.currentCooldown > 0" class="btn ability-disabled-ui disabled">{{ability.name}}
-        <div class='itemName' *ngIf="checkItemAbility(character,ability)!=''">{{checkItemAbility(character,ability)}}
-        </div>
+        <!--<div class='itemName' *ngIf="checkItemAbility(character,ability)!=''">{{checkItemAbility(character,ability)}}-->
+        <!--</div>-->
         <span class="ability-disabled-ui-cooldown"> {{ability.currentCooldown}}</span>
       </div>
     </div>
@@ -65,6 +65,6 @@
     <!--<div class="modalz-report" id="report"><div *ngFor="let text of this.report">{{text}}</div></div>-->
   <!--</div>-->
 <!--</div>-->
-<div class="modal-start-wrapper" *ngIf="!(started)">
+<div class="modal-start-wrapper" *ngIf="(modal.start)">
   <div class="modal-start">{{title}}</div>
 </div>

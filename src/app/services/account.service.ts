@@ -1,7 +1,6 @@
 import {Injectable} from '@angular/core';
 import * as firebase from 'firebase';
 import {Router} from '@angular/router';
-import {Player} from './models/player.model';
 import {Entity} from './models/entity.model';
 import {DataService} from './data.service';
 
@@ -10,22 +9,16 @@ export class AccountService {
 
   account: any;
   user: any;
-  ability: any[] = [];
+  ability: any[] = []; // Will be removed in the future, when inventory system is set up
   characters: any;
 
   constructor(private router: Router, private dataService: DataService) {
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
         this.user = {email: user.email, id: user.uid};
-        this.dataService.get('users', this.user.id, account => {
-          this.account = account;
-        });
-        this.dataService.get('characters', this.user.id, characters => {
-          this.characters = characters;
-        });
-        this.dataService.get('abilities', '', (ability) => {
-          this.ability = ability.filter((abilityD) => (abilityD.name === 'Punch'));
-        });
+        this.dataService.get('users', this.user.id, (account) => this.account = account);
+        this.dataService.get('characters', this.user.id, (characters) => this.characters = characters);
+        this.dataService.get('abilities', '', (ability) => this.ability = ability.filter((abilityD) => (abilityD.name === 'Slash')));
       }
     });
   }
@@ -49,9 +42,7 @@ export class AccountService {
   checkSignedIn() {
     return !!(this.user);
   }
-  compareStats(entity1, entity2) {
-    return JSON.stringify(entity1) === JSON.stringify(entity2) ;
-  }
+
   createAccount(teamName) {
     if (this.checkSignedIn()) {
       this.dataService.save('users', this.user.id, {
@@ -69,32 +60,32 @@ export class AccountService {
   }
   createCharacter(name, health, attack, accuracy, agility, resistance) {
     if (this.checkSignedIn()) {
-      this.dataService.save('characters', this.user.id,
-        [new Entity(name, health, attack, 0, accuracy, agility, resistance, this.ability)]
-      );
+     this.dataService.add('characters/' + this.user.id, new Entity(name, health, attack, 0, accuracy, agility, resistance, this.ability));
     }
   }
 
   createPVERoom() {
+
+    const player = {entities: this.getCharacters(), teamName: this.account.teamName, cpu: false};
+    const vampires = {entities: this.createVampire(this.getAccount().level), teamName: 'Vampires', cpu: true};
     this.dataService.update('users', this.user.id, {roomId:
-        this.dataService.add('rooms', { sides: [[{entities: this.characters, teamName: this.account.teamName, cpu: false}],
-            [{entities: this.createVampire(this.getAccount().level), teamName: 'Vampires', cpu: true}]], turnTime: 0})});
+        this.dataService.add('rooms', { sides: [[player], [vampires]], turnTime: 0})});
   }
 
   createVampire(lvl) {
     const vampires = [];
     for (let x = 0; x < (this.rndInt(lvl / 5)) + 1; x++) {
-      // Character name, side, health, attack, defence, accuracy, agility, resistance, abilities
-      vampires.push(new Entity('Vampire', this.rndIntBtw(20 + lvl, 70 + this.rndInt(lvl * 5)),
-        this.rndIntBtw(this.rndInt(lvl), this.rndInt(lvl * 2)), this.rndIntBtw(Math.floor(lvl / 5), this.rndInt(Math.floor(lvl / 2))),
+      // Character name, health, attack, defence, accuracy, agility, resistance, abilities
+      const vampire: any = new Entity('Vampire', this.rndIntBtw(20 + lvl, 70 + this.rndInt(lvl * 5)),
+        this.rndIntBtw(this.rndInt(lvl) + 1, this.rndInt(lvl * 2)), this.rndIntBtw(Math.floor(lvl / 5), this.rndInt(Math.floor(lvl / 2))),
         this.rndIntBtw(60, 100), this.rndIntBtw(this.rndInt(lvl), lvl + 10), this.rndIntBtw(0, this.rndInt(lvl)),
-        this.ability));
+        this.ability);
+      vampire.id = `${x}`;
+      vampires.push(vampire);
     }
     return vampires;
   }
-  navigation() {
-
-  }
+  navigation() {}
 
   signIn(email, password, onFinish, onError) {
     firebase.auth().signInWithEmailAndPassword(email, password)
@@ -127,6 +118,12 @@ export class AccountService {
     return (this.account.roomId) ? this.account.roomId : '';
   }
   getCharacters() {
-    return this.characters;
+    const characters = [];
+    Object.keys(this.characters).forEach((key) => {
+      const character = this.characters[key];
+      character.id = key;
+      characters.push(character);
+    });
+    return characters;
   }
 }

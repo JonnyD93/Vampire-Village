@@ -23,7 +23,7 @@ export class EffectsService {
   private effects: Effects = new Effects();
 
   bleedEffect(entity, effect) {
-    entity.health -= Math.round((3 / (effect.duration + 1)) * entity.health * this.percentOfHealth);
+    entity.attributes.health -= Math.round((3 / (effect.duration + 1)) * entity.attributes.health * this.percentOfHealth);
   }
 
   chickenEffect(entity, effect) {
@@ -45,7 +45,7 @@ export class EffectsService {
   }
 
   venomEffect(entity, effect) {
-    entity.health -= Math.round((effect.duration + 1) * entity.health * this.percentOfHealth);
+    entity.attributes.health -= Math.round((effect.duration + 1) * entity.attributes.health * this.percentOfHealth);
   }
 
   getFunction(string, entity, effect) {

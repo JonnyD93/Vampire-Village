@@ -22,8 +22,8 @@ export class VampireVillageComponent implements OnInit, AfterViewInit {
   hits: any = [];
   // The amount of time for each turn
   turnTime: any = 0;
-  title: string = '';
-  started: boolean = false;
+  title = '';
+  modal = {start: true, end: false};
 
   constructor(private accountService: AccountService, private gameService: GameService) {
   }
@@ -38,19 +38,20 @@ export class VampireVillageComponent implements OnInit, AfterViewInit {
 
   async waitSetUpDisplays() {
    const interval = setInterval(() => { // Creates an interval to check if the game has been loaded.
-     if (this.gameService.game.started) { // Checks if the game service has been started
+     if (this.gameService.getProgress() === 'started') { // Checks if the game service is loading
        this.setUpDisplays(); // Sets the Displays Up
-       this.title = this.gameService.getTitleOfMatch(); // Receives the title of the Match
-       clearInterval(interval); //Clears the interval to check if everything is loaded
-       setTimeout(() => (this.started = true), 5000); // Hides the modal after the game has started;
+       // this.title = this.gameService.getTitleOfMatch(); // Receives the title of the Match
+       this.modal.start = false; // Hides the start Modal
+       this.refreshDisplays(); // Starts the constant process of refreshing displays
+       clearInterval(interval); // Clears the interval to check if everything is loaded
      }
    });
     await interval;
   }
 
   attack(defender) {
-    let abilitySelected = 0;
-    this.gameService.attack(abilitySelected,defender)
+    const abilitySelected = 0;
+    this.gameService.attack(abilitySelected, defender);
   }
 
   // Updates the All Displays
@@ -75,42 +76,47 @@ export class VampireVillageComponent implements OnInit, AfterViewInit {
   }
 
   // Checks if the Ability is from an Item, and returns that Item's Name
-  checkItemAbility(character, ability) {
-    let itemName = '';
-    if (character.inventory.length > 0) {
-      character.inventory.forEach((item) => {
-        if (item.itemAbilities != null) {
-          item.itemAbilities.forEach((abilityItem) => {
-            itemName = (ability === abilityItem) ? `( ${item.name} )` : '';
-          });
-        }
-      });
-    }
-    return itemName;
-  }
+  // checkItemAbility(character, ability) {
+  //   let itemName = '';
+  //   if (character.inventory.length > 0) {
+  //     character.inventory.forEach((item) => {
+  //       if (item.itemAbilities != null) {
+  //         item.itemAbilities.forEach((abilityItem) => {
+  //           itemName = (ability === abilityItem) ? `( ${item.name} )` : '';
+  //         });
+  //       }
+  //     });
+  //   }
+  //   return itemName;
+  // }
 
   // Function to detect which player is active, and return true or false on it.
   checkPlayerActive(character) {
-    return this.gameService.checkPlayerActive(character);
+    return this.gameService.checkEntityActive(character);
   }
-
+  // Refreshes the Displays
+  refreshDisplays() {
+    setInterval(() => {
+      this.characterDisplays.characters = [];
+      this.enemyDisplays.entities = [];
+      this.gameService.room.forEach((entity) => (this.gameService.checkIfPlayer(entity))
+        ? this.characterDisplays.characters.push(entity) : this.enemyDisplays.entities.push(entity));
+    }, 100);
+  }
   // Sets up the Displays for the game
   setUpDisplays() {
-    this.gameService.room.forEach((entity) => {
-      let isPlayersCharacter = false;
-      this.accountService.getCharacters().forEach((character) => {
-        if (this.accountService.compareStats(entity, character)) {
-          this.characterDisplays.characters.push(character);
-          this.attributeKeys = Object.keys(character.attributes);
-          this.characterDisplays.healths.push(character.attributes.health);
-          isPlayersCharacter = true;
+    if (this.characterDisplays.characters.length === 0) {
+      this.gameService.room.forEach((entity) => {
+        if (this.gameService.checkIfPlayer(entity)) {
+          this.characterDisplays.characters.push(entity);
+          this.attributeKeys = Object.keys(entity.attributes);
+          this.characterDisplays.healths.push(entity.attributes.health);
+        } else {
+          this.enemyDisplays.entities.push(entity);
+          this.enemyDisplays.healths.push(entity.attributes.health);
         }
       });
-      if (!(isPlayersCharacter)) {
-        this.enemyDisplays.entities.push(entity);
-        this.enemyDisplays.healths.push(entity.attributes.health);
-      }
-    });
+    }
   }
 
   // Creates an hit object to display Players damage on a given target
