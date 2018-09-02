@@ -25,10 +25,12 @@ export class VampireVillageComponent implements OnInit, AfterViewInit {
   title = '';
   modal = {start: true, end: false};
 
-  constructor(private accountService: AccountService, private gameService: GameService) {
+
+  constructor(private gameService: GameService) {
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+
   }
 
   ngAfterViewInit() {

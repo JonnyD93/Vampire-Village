@@ -3,7 +3,35 @@ import * as firebase from 'firebase';
 
 @Injectable()
 export class DataService {
+  toBody = (element,key?,list?) => {
+    var list = list || [];
+    if(typeof element === 'object')
+      for (var idx in element)
+        this.toBody(element[idx],key?key+'['+idx+']':idx,list);
+    else
+      list.push(key+'='+encodeURIComponent(element));
+    return list.join('&');
+  }
+  post = async (url, obj) => {
+    console.log(`pending post...${url}`);
+    const body = JSON.parse(JSON.stringify(obj));
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: this.toBody(body)
+    });
+    const json = await response.json();
+    console.log(`post retrieved${json}`);
+    return json;
+  }
+  target = e => 'localhost:3001' + (e ? '/' + e : '');
 
+//data
+   login = async user => this.post(this.target('login'), user);
+
+   namechange = async (id, name) => this.post(this.target('namechange'), {id, name});
   firebase: any = firebase.database();
 
   toArray(obj: any) {

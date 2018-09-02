@@ -23,6 +23,7 @@ import {DataService} from './services/data.service';
 import {AdminHomeComponent} from './admin/admin-home/admin-home.component';
 import {AdminAbilityComponent} from './admin/admin-ability/admin-ability.component';
 import {AdminItemComponent} from './admin/admin-item/admin-item.component';
+import {HttpClientModule} from "@angular/common/http";
 
 const appRoutes: Routes = [
   {path: 'vampire-village', component: VampireVillageComponent},
@@ -63,7 +64,7 @@ firebase.initializeApp(config);
   imports: [
     BrowserModule,
     FormsModule,
-    HttpModule,
+    HttpClientModule,
     RouterModule.forRoot(appRoutes)
   ],
   providers: [ AccountService, DataService, EffectsService, GameService, Location, {

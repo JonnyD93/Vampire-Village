@@ -2,8 +2,10 @@ import {Injectable} from '@angular/core';
 import {AccountService} from './account.service';
 import {Entity} from './models/entity.model';
 import {Ability} from './models/ability.model';
+import {Observable} from 'rxjs';
 import {EffectsService} from './effects.service';
 import {DataService} from './data.service';
+import {HttpClient} from "@angular/common/http";
 
 @Injectable()
 export class GameService {
@@ -26,7 +28,7 @@ export class GameService {
   currentTurn: any;
   progress = 'loading';
 
-  constructor(private accountService: AccountService, private dataService: DataService, private effectsService: EffectsService) {
+  constructor(private accountService: AccountService, private dataService: DataService, private effectsService: EffectsService, private http: HttpClient) {
     dataService.get('rooms', this.accountService.getRoomId(), (room) => { // Gets the data Service
       this.sides = [];
       this.room = [];
@@ -284,7 +286,7 @@ export class GameService {
 
 
   async turnSystem() {
-    console.log(this.room, 'Hello Baby');
+    // console.log(this.room, 'Hello Baby');
     this.turnTime = 0;
     this.checkCurrentTurn();
     const entity = this.getActiveEntity();
