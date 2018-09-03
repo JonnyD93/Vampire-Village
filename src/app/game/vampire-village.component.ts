@@ -30,7 +30,6 @@ export class VampireVillageComponent implements OnInit, AfterViewInit {
   }
 
   async ngOnInit() {
-
   }
 
   ngAfterViewInit() {
@@ -55,6 +54,8 @@ export class VampireVillageComponent implements OnInit, AfterViewInit {
     const abilitySelected = 0;
     this.gameService.attack(abilitySelected, defender);
   }
+
+
 
   // Updates the All Displays
   // updateDisplays(defender): void {

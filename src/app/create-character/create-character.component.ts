@@ -81,10 +81,7 @@ export class CreateCharacter implements OnInit {
       else
         this.character[key] = this.charDisplayed.character[key];
     });
-    this.accountService.createCharacter(this.character.name, this.character.attributes.health, this.character.attributes.attack,
-      this.character.attributes.accuracy, this.character.attributes.agility, this.character.attributes.resistance);
-    this.accountService.createAccount(this.charDisplayed.teamName);
-    this.router.navigate(['home']);
+    this.accountService.createAccount(this.charDisplayed.teamName, this.character ,(error)=>(console.log(error)));
   }
 
 }

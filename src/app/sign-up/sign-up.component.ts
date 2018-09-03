@@ -37,8 +37,7 @@ export class SignUpComponent implements OnInit {
   }
   submit(){
     if(this.email != undefined && this.password != undefined && this.checkPasswordsIdentical()) {
-      this.accountService.signUp(this.email,this.password,()=>this.router.navigate(['home']),
-        (error)=>{
+      this.accountService.signUp(this.email,this.password, (error) => {
         this.error = error.message;
         this.resetPasswords();
       });

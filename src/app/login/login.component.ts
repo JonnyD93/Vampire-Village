@@ -13,34 +13,21 @@ export class LoginComponent implements OnInit, AfterViewInit {
   password: string;
   error: string;
 
-  constructor(private accountService: AccountService, private router: Router) {
+  constructor(private accountService: AccountService) {
     this.error = '';
-
   }
 
   ngOnInit() {}
 
-  ngAfterViewInit() {
-   // console.log(this.accountService.checkSignedIn());
-   // this.router.navigate([this.accountService.checkSignedIn()]);
-  }
+  ngAfterViewInit() {}
 
   signIn() {
     if (this.email !== undefined && this.password !== undefined) {
-      this.accountService.signIn(this.email, this.password, () => {
-          if (this.accountService.checkSignedIn()) {
-            if ((this.accountService.checkAccount())) {
-              this.router.navigate(['create-character']);
-            } else {
-              this.router.navigate(['home']);
-            }}
-        },
+      this.accountService.signIn(this.email, this.password,
         (error) => {
           this.error = error.message;
           this.password = '';
-        });
+        }, () => this.accountService.navigation());
     }
-
   }
-
 }

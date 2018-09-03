@@ -1,38 +1,43 @@
 import {Injectable} from '@angular/core';
 import * as firebase from 'firebase';
+import { Observable } from 'rxjs';
+import { catchError, retry } from 'rxjs/operators';
+import {HttpClient, HttpErrorResponse, HttpHeaders} from "@angular/common/http";
+
+const httpOptions = {
+  headers: new HttpHeaders({
+    'Content-Type':  'application/json',
+    'Authorization': 'my-auth-token'
+  })
+};
 
 @Injectable()
 export class DataService {
-  toBody = (element,key?,list?) => {
-    var list = list || [];
-    if(typeof element === 'object')
-      for (var idx in element)
-        this.toBody(element[idx],key?key+'['+idx+']':idx,list);
-    else
-      list.push(key+'='+encodeURIComponent(element));
-    return list.join('&');
-  }
-  post = async (url, obj) => {
-    console.log(`pending post...${url}`);
-    const body = JSON.parse(JSON.stringify(obj));
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: this.toBody(body)
-    });
-    const json = await response.json();
-    console.log(`post retrieved${json}`);
-    return json;
-  }
-  target = e => 'localhost:3001' + (e ? '/' + e : '');
+   firebase: any = firebase.database();
 
-//data
-   login = async user => this.post(this.target('login'), user);
+  constructor(private http: HttpClient) { }
 
-   namechange = async (id, name) => this.post(this.target('namechange'), {id, name});
-  firebase: any = firebase.database();
+    // /** POST: add a new hero to the database */
+    // test (): Observable<any> {
+    //   return this.http.post<any>('http://localhost:3001/account/test', {}, httpOptions)
+    //     .pipe(catchError(this.handleError));
+    // }
+
+  private handleError(error: HttpErrorResponse) {
+    if (error.error instanceof ErrorEvent) {
+      // A client-side or network error occurred. Handle it accordingly.
+      console.error('An error occurred:', error.error.message);
+    } else {
+      // The backend returned an unsuccessful response code.
+      // The response body may contain clues as to what went wrong,
+      console.error(
+        `Backend returned code ${error.status}, ` +
+        `body was: ${error.error}`);
+    }
+    // return an observable with a user-facing error message
+    return new Observable();
+  };
+
 
   toArray(obj: any) {
     return Object.keys(obj).map(key => obj[key]);
