@@ -12,6 +12,9 @@ module.exports = class {
     return this.health <= 0;
   }
 
+  getActiveAbiltities () {
+    return this.abilities.filter((ability) => ability.currentCooldown <= 0);
+  }
 };
 
 // const Character = require('../models/character');
