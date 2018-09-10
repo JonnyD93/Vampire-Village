@@ -35,7 +35,7 @@ export class HomeComponent implements OnInit {
   }
 
   playPVE() {
-   this.accountService.createPVERoom();
+   this.accountService.createPVERoom((e) => console.log(e));
    this.router.navigate(['vampire-village']);
   }
 }

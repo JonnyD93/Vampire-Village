@@ -1,7 +1,7 @@
 {
-  "name": "rest-crud",
-  "description": "REST CRUD Example Node.js & Mysql",
-  "version": "0.0.1",
+  "name": "vampire-village",
+  "description": "The backend server hosting all data for the game vampire-village",
+  "version": "0.0.2",
   "private": true,
   "main": "server.js",
   "scripts": {
@@ -11,11 +11,14 @@
   "dependencies": {
     "body-parser": "1.9.0",
     "cors": "^2.8.1",
-    "express": "4.9.5",
+    "express": "^4.16.3",
     "express-myconnection": "*",
-    "express-validator": "^2.6.0",
+    "express-validator": "^5.3.0",
     "firebase-admin": "^5.4.3",
     "password-hash": "^1.2.2",
     "request": "^2.83.0"
-  }
+  },
+  "devDependencies": {},
+  "author": "Jonny Deates",
+  "license": "ISC"
 }

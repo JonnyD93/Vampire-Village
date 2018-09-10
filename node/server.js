@@ -30,7 +30,7 @@ app.get('/', (req, res)=>
 );
 
 //loads all route files in routes folder
-fs.readdirSync(__dirname + '/routes').forEach(file=> require(__dirname + '/routes/' + file)(app));
+fs.readdirSync(__dirname + '/routes').forEach(file => require(__dirname + '/routes/' + file)(app));
 
 //start Server
-const server = app.listen(3001, ()=>console.log(`Listening to port ${server.address().port}`));
+const server = app.listen(3001, () => console.log(`Listening to port ${server.address().port}`));

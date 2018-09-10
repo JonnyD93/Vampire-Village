@@ -18,24 +18,7 @@ export class AccountService {
     })
   };
 
-  constructor(private router: Router, private dataService: DataService, private http: HttpClient) {
-    // firebase.auth().onAuthStateChanged(user => {
-    //   if (user) {
-    //     this.user = {email: user.email, id: user.uid};
-    //     this.dataService.get('users', this.user.id, (account) => this.account = account);
-    //     this.dataService.get('characters', this.user.id, (characters) => this.characters = characters);
-    //     this.dataService.get('abilities', '', (ability) => this.ability = ability.filter((abilityD) => (abilityD.name === 'Slash')));
-    //   }
-    // });
-    // this.dataService.test().subscribe(obj => {
-    //   console.log("Test\n", obj);
-    // });
-  }
-  // adminCalculateAllRanks() {
-  //   this.database.ref(`/users/`).once('value').then((snapshot) => {
-  //     console.log(snapshot.val());
-  //   });
-  // }
+  constructor(private router: Router, private dataService: DataService, private http: HttpClient) {}
 
   checkCharacters() {
       return !!(this.characters);
@@ -49,11 +32,11 @@ export class AccountService {
     return (this.account === '404');
   }
 
-  createAccount(teamName, char ,onError) {
+  createAccount(teamName, char , onError) {
     this.http.post<any> ('http://localhost:3001/createAccount', {teamName: teamName, userId: this.userId} , this.httpOptions)
       .pipe(catchError(onError)).subscribe((user) => {
       this.account = user;
-      this.createCharacter(char, onError)
+      this.createCharacter(char, onError);
     });
   }
   createCharacter(char, onError) {
@@ -67,8 +50,8 @@ export class AccountService {
   createPVERoom(onError) {
     const player = {entities: this.getCharacters(), teamName: this.account.teamName, cpu: false};
     this.http.post<any> ('http://localhost:3001/createPVERoom', {player: player, userId: this.userId, level: this.account.level} ,
-      this.httpOptions).pipe(catchError(onError)).subscribe((roomId) => {
-      this.account.roomId = roomId;
+      this.httpOptions).pipe(catchError(onError)).subscribe((data) => {
+      this.account.roomId = data.id;
       this.router.navigate(['vampire-village']);
     });
   }
@@ -89,8 +72,8 @@ export class AccountService {
       this.http.post<any> ('http://localhost:3001/login', {userId: this.userId} , this.httpOptions)
         .pipe(catchError(onError)).subscribe((user) => {
         this.account = user;
-        firebase.database().ref(`characters/${this.userId}`).once('value', (snapshot) =>
-          this.characters = snapshot.val());
+        firebase.database().ref(`characters/${this.userId}`).once('value', (snapshot2) =>
+          this.characters = snapshot2.val());
         onFinish();
       });
     }).catch((error) => onError(error));
@@ -106,7 +89,7 @@ export class AccountService {
       .then((snapshot) => {
         this.userId = snapshot.user.uid;
         this.signIn(email, password, (error) => this.router.navigate(['login']), () =>
-          this.router.navigate(['create-character']))}).catch((error) => onError(error));
+          this.router.navigate(['create-character'])); }).catch((error) => onError(error));
   }
 
   getAccount() {
@@ -116,11 +99,15 @@ export class AccountService {
     return {level: this.account.level, experience: this.account.experience, teamName: this.account.teamName};
   }
   getRoomId() {
-    return (this.account.roomId) ? this.account.roomId : '';
+    if (this.account) {
+      return (this.account.roomId) ? this.account.roomId : 'No Accoun';
+    } else {
+      return 'No User';
+    }
   }
   getCharacters() {
     const characters = [];
-    Object.keys(this.characters).forEach((key) => {characters.push(Object.assign(this.characters[key], {id: key}))});
+    Object.keys(this.characters).forEach((key) => {characters.push(Object.assign(this.characters[key], {id: key})); });
     return characters;
   }
 }

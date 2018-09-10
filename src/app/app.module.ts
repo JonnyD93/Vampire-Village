@@ -15,8 +15,7 @@ import {LoginComponent} from './login/login.component';
 import {SignUpComponent} from './sign-up/sign-up.component';
 import {InventoryComponent} from './inventory page/inventory';
 import {CreateCharacter} from './create-character/create-character.component';
-//Services
-import {EffectsService} from './services/effects.service';
+// Services
 import {AccountService} from './services/account.service';
 import {GameService} from './services/game.service';
 import {DataService} from './services/data.service';
@@ -67,7 +66,7 @@ firebase.initializeApp(config);
     HttpClientModule,
     RouterModule.forRoot(appRoutes)
   ],
-  providers: [ AccountService, DataService, EffectsService, GameService, Location, {
+  providers: [ AccountService, DataService, GameService, Location, {
     provide: LocationStrategy,
     useClass: HashLocationStrategy
   }],
