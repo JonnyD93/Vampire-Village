@@ -5,25 +5,20 @@ let admin = require("firebase-admin"),
 
 const startTurnTime = Date.now(),
   turnTime = (time) => time - startTurnTime,
-  updateCurrentTurn = (roomId, turns) => {
-    db.ref(`rooms/${roomId}`).update({currentTurn: (this.turns[0]) ? this.turns[0] : this.sortTurns()});
+  updateCurrentTurn = (room, roomId, turns) => {
+    db.ref(`rooms/${roomId}`).update({currentTurn: (this.turns[0]) ? this.turns[0] : sortTurns(room, turns, roomId)});
   },
-  sortTurns = (room, turns) => {
-    this.checkTeamDefeated();
+  sortTurns = (room, turns, roomId) => {
+    // this.checkTeamDefeated();
     turns = [];
     room.sort((a, b) => {
-      if (a.attributes.agility < b.attributes.agility) {
+      if (a.attributes.agility < b.attributes.agility)
         return 1;
-      }
-      if (a.attributes.agility > b.attributes.agility) {
+      if (a.attributes.agility > b.attributes.agility)
         return -1;
-      }
-      return 0;
-    });
-    room.forEach((entity) => {
-      turns.push(entity.id);
-    });
-    this.updateCurrentTurn();
+      return 0 });
+    room.forEach((entity) => turns.push(entity.id));
+    updateCurrentTurn(roomId, turns);
     return this.currentTurn;
   },
   skipTurn = (entity, turns, roomId) => {
@@ -33,7 +28,7 @@ const startTurnTime = Date.now(),
       updateCurrentTurn(roomId, turns);
       runTurns();
     }
-  }
+  },
   runTurns = () => {
     this.checkCurrentTurn();
     const entity = this.getActiveEntity();
@@ -64,8 +59,7 @@ const startTurnTime = Date.now(),
     } else {
       clearInterval(this.interval);
       return;
-    }
-  };
+    };
 module.exports = {turnTime, startTurnTime, runTurns};
 
 // var authUtil = require('url');
