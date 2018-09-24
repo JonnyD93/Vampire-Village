@@ -1,5 +1,5 @@
 // Import Admin SDK
-var admin = require("firebase-admin");
+let admin = require("firebase-admin");
 
 const percentOfHealth = 0.03,
   bleedEffect = (entity, effect) => entity.attributes.health -=
@@ -17,7 +17,7 @@ const percentOfHealth = 0.03,
     //   return this.chickenEffect(entity, effect);
     if (string === 'Vampirism')
       return this.vampirism(entity, effect);
-  }
+  };
 module.exports = {getEffect};
 
 // chickenEffect(entity, effect) {

@@ -1,7 +1,7 @@
-var admin = require("firebase-admin");
-var gen = require("../utils/generateEntities");
-var turnSystem = require("../utils/turnSystem");
-var db = admin.database();
+let admin = require("firebase-admin"),
+  gen = require("../utils/generateEntities"),
+  turnSystem = require("../utils/turnSystem"),
+  db = admin.database();
 
 module.exports = app => {
   app.route('/createPVERoom')
@@ -12,7 +12,7 @@ module.exports = app => {
       const roomRef = db.ref('rooms').push();
       roomRef.set({ sides: [[player], [vampires]], turnTime: 0});
       db.ref(`users/${request.userId}`).update({roomId: roomRef.key}).then(() => {
-        turnSystem.runTurns()
+        turnSystem.getDatabaseUpdates(roomRef.key);
         res.send({id: roomRef.key});
       });
     });

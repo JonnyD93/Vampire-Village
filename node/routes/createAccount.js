@@ -1,5 +1,5 @@
-var admin = require("firebase-admin");
-var db = admin.database();
+let admin = require("firebase-admin"),
+  db = admin.database();
 
 module.exports = app => {
   app.route('/createAccount')
