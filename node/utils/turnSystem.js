@@ -1,85 +1,82 @@
 // Import Admin SDK
 let admin = require("firebase-admin"),
   // Get a database reference
-  db = admin.database(),
-  room = {dbRoom: [], interval, entities: [], turnTime: 0, turns: []};
-  dbRoom = [],
-  interval,
-  entities = [],
-  turnTime = 0,
-  turns = [];
+  db = admin.database();
 
-const getDatabaseUpdates = (roomId) => {
-  db.ref(`rooms/${roomId}`).once('value', (snapshot) => dbRoom = snapshot.val().sides, (e) => console.log(e))
-    .then(() => sortRoom(roomId));
+const checkIfCPU = (lobby, entity) => {
+    let boolean = false;
+    lobby.dbRoom.forEach((team) => team.filter((account) => account.cpu === true).forEach((account) =>
+      account.entities.forEach((entity1) => boolean = (entity1.id === entity.id))));
+    return boolean;
   },
-  updateCurrentTurn = (roomId) => {
-  console.log(turns[0], turns, 'Take 2')
-    db.ref(`rooms/${roomId}`).update({currentTurn: (turns[0]) ? turns[0] : sortTurns(roomId)});
-    return turns[0];
-    },
-  updateTurnTime = (time, roomId) => {
-  db.ref(`rooms/${roomId}`).update({turnTime: time});
+  getDatabaseUpdates = (roomId) => {
+    let dbRoom = undefined;
+    db.ref(`rooms/${roomId}`).once('value', (snapshot) => dbRoom = snapshot.val().sides, (e) => console.log(e))
+      .then(() => setupLobby(roomId, dbRoom));
   },
-  sortRoom = (roomId) => {
-  dbRoom.forEach((side) => side.forEach((account) => account.entities.forEach((entity) => entities.push(entity))));
-  runTurns(roomId);
+  updateCurrentTurn = (lobby) => {
+    db.ref(`rooms/${lobby.roomId}`).update({currentTurn: (lobby.turns[0]) ? lobby.turns[0] : sortTurns(lobby)});
+    return lobby.room.find((entity) => entity.id = lobby.turns[0]);
   },
-  sortTurns = (roomId) => {
+  updateTimeStamp = (roomId) => {
+    db.ref(`rooms/${roomId}`).update({turnTime: new Date()});
+  },
+  setupLobby = (roomId, dbRoom) => {
+    let lobby = {roomId: roomId, dbRoom: dbRoom, room: [], timeStamp: new Date(), turns: []};
+    dbRoom.forEach((side) => side.forEach((account) => account.entities.forEach((entity) => lobby.room.push(entity))));
+    runTurns(lobby);
+  },
+  sortTurns = (lobby) => {
     // this.checkTeamDefeated();
-    turns = [];
-    entities.sort((a, b) => {
+    lobby.turns = [];
+    lobby.room.sort((a, b) => {
       if (a.attributes.agility < b.attributes.agility)
         return 1;
       if (a.attributes.agility > b.attributes.agility)
         return -1;
       return 0
     });
-    entities.forEach((entity) => turns.push(entity.id));
-    return updateCurrentTurn(roomId, turns);
+    lobby.room.forEach((entity) => lobby.turns.push(entity.id));
+    return updateCurrentTurn(lobby);
   },
-  skipTurn = (entity, roomId) => {
-    if (turns[0] === entity.id) {
-      turns.popFirst();
-      clearInterval(interval);
-      updateCurrentTurn(roomId);
-      runTurns(roomId);
+  skipTurn = (entity, lobby) => {
+    if (lobby.turns[0] === entity.id) {
+      lobby.turns.popFirst();
+      updateCurrentTurn(lobby);
+      runTurns(lobby);
     }
   };
 
-async function runTurns(roomId) {
-    // this.checkCurrentTurn();
-    const entity = updateCurrentTurn(roomId);
-    interval = setInterval(() => {
-      updateTurnTime(turnTime, roomId);
-      turnTime++;
-      if (turnTime >= 60) {
-        skipTurn(entity, roomId);
-      }
-      }, 1000);
-    // if (!!(entity.activeEffects)) {
-    //   this.effectTurn(entity);
-    // }
-    // entity.abilities.forEach((ability) => ability.currentCooldown--);
-    // if (!this.checkAnyActiveAbilities(entity)) {
-    //   // console.log('No Active abilities')
-    //   return this.skipTurn(entity);
-    // }
-    // entity.activeTurn = true;
-    // if (this.checkIfPlayer(entity)) {
-    //   return;
-    // } else if (this.checkIfCPU(entity)) {
-    //   this.entityAttack(entity);
-    //   await
-    //   this.delay(1000, 1);
-    //   entity.activeTurn = false;
-    //   return this.skipTurn(entity);
-    // } else {
-    //   clearInterval(this.interval);
-    //   return;
+async function runTurns(lobby) {
+  // this.checkCurrentTurn();
+  const entity = updateCurrentTurn(lobby);
+  updateTimeStamp(lobby.roomId);
+  // if (!!(entity.activeEffects)) {
+  //   this.effectTurn(entity);
+  // }
+  // entity.abilities.forEach((ability) => ability.currentCooldown--);
+  // if (!this.checkAnyActiveAbilities(entity)) {
+  //   // console.log('No Active abilities')
+  //   return this.skipTurn(entity);
+  // }
+  // entity.activeTurn = true;
+  if(checkIfCPU(lobby, entity)) {
+    // entityAttack(entity);
+  }
+  // if (this.checkIfPlayer(entity)) {
+  //   return;
+  // } else if (this.checkIfCPU(entity)) {
+  //   this.entityAttack(entity);
+  //   await
+  //   this.delay(1000, 1);
+  //   entity.activeTurn = false;
+  //   return this.skipTurn(entity);
+  // }// else {
+  //   clearInterval(this.interval);
+  //   return;
 }
 
-module.exports = {turnTime, getDatabaseUpdates};
+module.exports = {getDatabaseUpdates};
 
 // var authUtil = require('url');
 // authUtil.helloWorld();
