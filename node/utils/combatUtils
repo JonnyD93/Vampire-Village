@@ -1,0 +1,69 @@
+// Import Admin SDK
+
+let admin = require("firebase-admin"),
+  Effect = require("/runEffects"),
+  db = admin.database(),
+  ref = db.ref("server/saving-data/fireblog/posts");
+
+const rndInt = (x) => Math.round(Math.random() * x),
+  applyEffect = (defender, ability) => {
+    if (ability.effect !== undefined && (ability.effectChance >= rndInt(100 + defender.attributes.resistance))) {
+      // this.updateReport(`${defender.name} is now ${ability.effect.desc} : ability.effect.color`);
+      defender.activeEffects = (!!defender.activeEffects) ? defender.activeEffects : [];
+      defender.activeEffects.push(JSON.parse(JSON.stringify(ability.effect)));
+    }
+  },
+  effectTurn = (entity) => { // Applies the Effect Damage & Duration of the Effect
+    entity.activeEffects.forEach((effect) => {
+      effect.duration--;
+      return (effect.duration <= -1)
+        ? entity.activeEffects.splice(entity.activeEffects.indexOf(effect), 1)
+        : effectCalculation(entity, effect);
+    });
+  },
+  entityAttack = (entity, lobby) => { // Entity Ai
+    const enemies = [];
+    lobby.dbRoom.filter((team) => (team.indexOf(entity.id) === -1)).forEach((team) => (team.forEach((entityId) => enemies.push(entityId))));
+    const enemyId = enemies[Math.floor(Math.random() * enemies.length)]; // Finding the enemy Id to Attack
+    const defender = this.room.find((target) => (target.id === enemyId)); // Finding the actual defender or target
+    damageCalculation(entity, defender, rndInt(entity.abilities.length - 1)); // Running Damage Calculation on it
+  };
+// Calculates the Effect damage for that turn
+  function effectCalculation(defender, effect) {
+    Effect.getFunction(effect.name, defender, effect);
+    this.checkDead(defender);
+  }
+  async function damageCalculation(attacker, defender, abilitySelected) {
+    const ability = attacker.abilities[abilitySelected];
+    const type = ability.type;
+    const attack = Math.floor(attacker.attributes.attack * attacker.abilities[abilitySelected].damageMultiplier);
+    const defend = rndInt(defender.attributes.defense);
+    defender.targeted = true;
+    ability.currentCooldown = ability.cooldown;
+    if ((attacker.attributes.accuracy >= rndInt(100 + defender.attributes.agility))) {
+      applyEffect(defender, ability);
+      if (type === 'health') {
+        if (attack < 0) {
+          defender.attributes.health -= attack;
+        }
+        if ((attack - defend) <= 0) {
+        }
+        // this.spawnToast(`${defender.name} blocked ${attacker.name} by ${Math.abs(attack - defend)}`, 'blue');
+        if ((attack - defend) > 0) {
+          // this.spawnToast(`${attacker.name} ${item.description} ${defender.name} for ${attack - defend}`, 'red');
+          defender.attributes.health -= (attack - defend);
+          this.checkDead(defender);
+        }
+      } else {
+        defender[type] = (defender[type] - attacker.attributes.attack >= 0) ? defender[type] - attack : 0;
+      }
+    }
+    this.updateRoom();
+    // this.spawnToast(attacker.name + ' missed', '#00bb00');
+    await this.delay(1000, 1);
+    defender.targeted = false;
+  }
+module.exports = {damageCalculation};
+
+// var authUtil = require('url');
+// authUtil.helloWorld();
