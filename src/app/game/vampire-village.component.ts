@@ -1,6 +1,4 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
-import {DataService} from '../services/data.service';
-import {AccountService} from '../services/account.service';
 import {GameService} from '../services/game.service';
 
 @Component({
@@ -69,11 +67,11 @@ export class VampireVillageComponent implements OnInit, AfterViewInit {
   // //     });
   // // }
   //
-  // // Determines the color of the enemy Entity based on amount of health
-  // calcColor(entity, health) {
-  //   const x = 100 - ((entity.attributes.health / health) * 100);
-  //   return `rgb(${x}%,${x}%,${x}%)`;
-  // }
+  // Determines the color of the enemy Entity based on amount of health
+  calcColor(entity, health) {
+    const x = 100 - ((entity.attributes.health / health) * 100);
+    return `rgb(${x}%,${x}%,${x}%)`;
+  }
   // // Function to detect the current Health of the Current Player
   // calcHealth(currentHealth, maxHealth) {
   //   return Math.round((currentHealth / maxHealth) * 100);
@@ -94,10 +92,10 @@ export class VampireVillageComponent implements OnInit, AfterViewInit {
   // //   return itemName;
   // // }
   //
-  // // Function to detect which player is active, and return true or false on it.
-  // checkPlayerActive(character) {
-  //   return this.gameService.checkEntityActive(character);
-  // }
+  // Function to detect which player is active, and return true or false on it.
+  checkPlayerActive(character) {
+    return this.gameService.checkPlayerActive(character);
+  }
   // // Refreshes the Displays
   // refreshDisplays() {
   //   setInterval(() => {

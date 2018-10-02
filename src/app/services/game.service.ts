@@ -50,6 +50,9 @@ export class GameService {
         });
       }
     }
+    checkPlayerActive(entity) {
+    return (this.accountService.characters.indexOf(entity) !== -1)
+    }
     // dataService.get('rooms', this.accountService.getRoomId(), (room) => { // Gets the data Service
     //   this.sides = [];
     //   this.room = [];

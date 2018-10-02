@@ -1,7 +1,6 @@
 import {Injectable} from '@angular/core';
 import * as firebase from 'firebase';
 import {Router} from '@angular/router';
-import {DataService} from './data.service';
 import { catchError, retry } from 'rxjs/operators';
 import {HttpClient, HttpErrorResponse, HttpHeaders} from "@angular/common/http";
 
@@ -18,7 +17,7 @@ export class AccountService {
     })
   };
 
-  constructor(private router: Router, private dataService: DataService, private http: HttpClient) {}
+  constructor(private router: Router, private http: HttpClient) {}
 
   checkCharacters() {
       return !!(this.characters);
@@ -100,7 +99,7 @@ export class AccountService {
   }
   getRoomId() {
     if (this.account) {
-      return (this.account.roomId) ? this.account.roomId : 'No Accoun';
+      return (this.account.roomId) ? this.account.roomId : 'No Account';
     } else {
       return 'No User';
     }

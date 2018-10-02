@@ -1,5 +1,6 @@
 // Import Admin SDK
 let admin = require("firebase-admin"),
+  CombatUtils = require("../utils/combatUtils"),
   // Get a database reference
   db = admin.database();
 
@@ -20,6 +21,9 @@ const checkIfCPU = (lobby, entity) => {
   },
   updateTimeStamp = (roomId) => {
     db.ref(`rooms/${roomId}`).update({turnTime: new Date()});
+  },
+  updateRoom = (lobby) => {
+    db.ref(`rooms/${lobby.roomId}`).update({turns: lobby.turns, room: lobby.room, turnTime: new Date()});
   },
   setupLobby = (roomId, dbRoom) => {
     let lobby = {roomId: roomId, dbRoom: dbRoom, room: [], timeStamp: new Date(), turns: []};
@@ -52,7 +56,7 @@ async function runTurns(lobby) {
   const entity = updateCurrentTurn(lobby);
   updateTimeStamp(lobby.roomId);
   // if (!!(entity.activeEffects)) {
-  //   this.effectTurn(entity);
+  //   CombatUtils.effectTurn(entity, lobby);
   // }
   // entity.abilities.forEach((ability) => ability.currentCooldown--);
   // if (!this.checkAnyActiveAbilities(entity)) {
@@ -61,19 +65,12 @@ async function runTurns(lobby) {
   // }
   // entity.activeTurn = true;
   if(checkIfCPU(lobby, entity)) {
-    // entityAttack(entity);
+    CombatUtils.entityAttack(entity, lobby);
+    updateRoom(lobby);
+    return skipTurn(entity, lobby);
+  } else {
+    return updateRoom(lobby);
   }
-  // if (this.checkIfPlayer(entity)) {
-  //   return;
-  // } else if (this.checkIfCPU(entity)) {
-  //   this.entityAttack(entity);
-  //   await
-  //   this.delay(1000, 1);
-  //   entity.activeTurn = false;
-  //   return this.skipTurn(entity);
-  // }// else {
-  //   clearInterval(this.interval);
-  //   return;
 }
 
 module.exports = {getDatabaseUpdates};

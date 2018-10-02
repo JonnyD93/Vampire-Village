@@ -1,7 +1,5 @@
-var admin = require("firebase-admin");
-
-// Get a database reference to our posts
-var db = admin.database();
+let admin = require("firebase-admin"),
+  db = admin.database();
 
 module.exports = app => {
   app.route('/login')
