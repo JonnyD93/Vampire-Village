@@ -1,5 +1,6 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
-import {GameService} from '../services/game.service';
+import {AccountService} from '../services/account.service';
+import * as firebase from 'firebase';
 
 @Component({
   selector: 'app-vampire-village',
@@ -8,6 +9,8 @@ import {GameService} from '../services/game.service';
 })
 export class VampireVillageComponent implements OnInit, AfterViewInit {
 
+  lobby: any;
+  ref: any = firebase.database().ref(`/rooms/${this.accountService.getRoomId()}`);
   // Each characters different type of Object Keys, as a separate variable
   characterDisplays: any = { characters: [], healths: []};
   attributeKeys: any = [];
@@ -24,16 +27,33 @@ export class VampireVillageComponent implements OnInit, AfterViewInit {
   modal = {start: true, end: false};
 
 
-  constructor(private gameService: GameService) {
+  constructor(private accountService: AccountService) {
   }
 
   async ngOnInit() {
-    this.gameService.checkStatus(console.log(''));
+    const snapshot = this.ref.once('value');
+    this.lobby = await snapshot.val();
+    this.ref(`/rooms/${this.accountService.getRoomId()}`).on('value', snapshot => this.lobby = snapshot.val());
+    setInterval(() => this.accountService.checkStatus(console.log), 1000);
   }
 
   ngAfterViewInit() {
     // this.startGame();
-    this.waitSetUpDisplays();
+    // this.waitSetUpDisplays();
+  }
+
+  checkPlayerActive(entity) {
+    return (this.accountService.characters.indexOf(entity) !== -1);
+  }
+
+  updateDisplays() {
+    // return (this.characterDisplays.characters.indexOf(defender) !== -1)
+    //     ? Object.keys(this.characterDisplays).forEach((key) => {
+    //       this.characterDisplays[key].splice(this.characterDisplays.characters.indexOf(defender), 1);
+    //     })
+    //     : Object.keys(this.enemyDisplays).forEach((key) => {
+    //       this.enemyDisplays[key].splice(this.enemyDisplays.entities.indexOf(defender), 1);
+    //     });
   }
 
   async waitSetUpDisplays() {
@@ -93,9 +113,6 @@ export class VampireVillageComponent implements OnInit, AfterViewInit {
   // // }
   //
   // Function to detect which player is active, and return true or false on it.
-  checkPlayerActive(character) {
-    return this.gameService.checkPlayerActive(character);
-  }
   // // Refreshes the Displays
   // refreshDisplays() {
   //   setInterval(() => {

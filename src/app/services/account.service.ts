@@ -30,7 +30,19 @@ export class AccountService {
   checkAccount() {
     return (this.account === '404');
   }
-
+  checkStatus (onError) {
+    if (this.getRoomId() === 'No User') {
+      this.router.navigate(['login']);
+    } else if (this.getRoomId() === 'No RoomId') {
+      this.router.navigate(['home']);
+    } else {
+      // this.http.post<any>('http://localhost:3001/getRoom', {roomId: this.accountService.getRoomId()}, this.httpOptions)
+      //   .pipe(catchError(onError)).subscribe(data => {
+      //   this.room = data;
+      //   console.log(this.room, 'here');
+      // });
+    }
+  }
   createAccount(teamName, char , onError) {
     this.http.post<any> ('http://localhost:3001/createAccount', {teamName: teamName, userId: this.userId} , this.httpOptions)
       .pipe(catchError(onError)).subscribe((user) => {

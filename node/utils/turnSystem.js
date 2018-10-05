@@ -45,7 +45,7 @@ const checkIfCPU = (lobby, entity) => {
   },
   skipTurn = (entity, lobby) => {
     if (lobby.turns[0] === entity.id) {
-      lobby.turns.popFirst();
+      lobby.turns.splice(lobby.turns.indexOf(entity.id),1);
       updateCurrentTurn(lobby);
       runTurns(lobby);
     }
@@ -54,7 +54,6 @@ const checkIfCPU = (lobby, entity) => {
 async function runTurns(lobby) {
   // this.checkCurrentTurn();
   const entity = updateCurrentTurn(lobby);
-  updateTimeStamp(lobby.roomId);
   // if (!!(entity.activeEffects)) {
   //   CombatUtils.effectTurn(entity, lobby);
   // }

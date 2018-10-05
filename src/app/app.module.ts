@@ -17,12 +17,11 @@ import {InventoryComponent} from './inventory page/inventory';
 import {CreateCharacter} from './create-character/create-character.component';
 // Services
 import {AccountService} from './services/account.service';
-import {GameService} from './services/game.service';
 import {DataService} from './services/data.service';
 import {AdminHomeComponent} from './admin/admin-home/admin-home.component';
 import {AdminAbilityComponent} from './admin/admin-ability/admin-ability.component';
 import {AdminItemComponent} from './admin/admin-item/admin-item.component';
-import {HttpClientModule} from "@angular/common/http";
+import {HttpClientModule} from '@angular/common/http';
 
 const appRoutes: Routes = [
   {path: 'vampire-village', component: VampireVillageComponent},
@@ -66,7 +65,7 @@ firebase.initializeApp(config);
     HttpClientModule,
     RouterModule.forRoot(appRoutes)
   ],
-  providers: [ AccountService, DataService, GameService, Location, {
+  providers: [ AccountService, DataService, Location, {
     provide: LocationStrategy,
     useClass: HashLocationStrategy
   }],
