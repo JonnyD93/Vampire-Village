@@ -3,7 +3,7 @@
     <div style="padding-top: 32px;">
       <div class="col s2" style="z-index: 10" *ngFor="let entity of enemyDisplays.entities; let i = index">
         <div class="btn vampire" [ngClass]="{death: entity.death, activeTurn: entity.activeTurn, endTurn: !entity.activeTurn, targeted: entity.targeted}"
-             [style.background-color]="calcColor(entity, enemyDisplays.healths[i])" (click)="attack(entity)">
+             [style.background-color]="calcColor(entity, enemyDisplays.healths[i])" (click)="attack(entity.id)">
           {{entity.name}}
         </div>
         <div *ngIf="!entity.death"><div class="entity-effect" *ngFor="let effect of enemyDisplays.entities[i].activeEffects; let j = index" [style.background-color]="effect.color" [style.z-index]="-1-j" [style.bottom]="36-j+'px'"></div></div>
@@ -28,7 +28,7 @@
 </div>
 <div *ngFor="let character of characterDisplays.characters; let i = index">
   <nav class="abilities-ui" *ngIf="checkPlayerActive(character)">
-    <span><div class="btn skip-turn-btn" (click)="skipTurn(false)"><i
+    <span><div class="btn skip-turn-btn" (click)="skipPlayerTurn(character)"><i
       class="material-icons skip-turn-icon">access_time</i></div></span>
     <span><div class="btn skip-turn-btn" style="top: 32px;"><i class="material-icons skip-turn-icon">backspace</i></div></span>
     <span class="player-ui">{{character.name}}</span>
@@ -50,21 +50,21 @@
     </div>
   </nav>
 </div>
-<div *ngFor="let character of enemyDisplays.entities; let i = index">
-  <nav class="entity-ui"  *ngIf="checkPlayerActive(character)">
-    <span class="entity-name">{{character.name}}</span>
+<div *ngFor="let enemy of enemyDisplays.entities; let i = index">
+  <nav class="entity-ui"  *ngIf="!checkPlayerActive(enemy)">
+    <span class="entity-name">{{enemy.name}}</span>
     <div class="progress">
-      <div class="determinate" [style.width]="(calcHealth(character.attributes.health,enemyDisplays.healths[i]))+'%'"></div>
+      <div class="determinate" [style.width]="(calcHealth(enemy.attributes.health,enemyDisplays.healths[i]))+'%'"></div>
     </div>
   </nav>
 </div>
 <span class="status" *ngFor="let hit of hits; let i = index" [ngStyle]="hit.styles" [style.top]="10+(i*5)+'%'">{{hit.description}}</span>
-<!--<div class="modal-end-wrapper" *ngIf="(this.checkTeamDefeated())">-->
-  <!--<div class="modal-end">-->
-    <!--<div class="modalz-text"> You Win!</div>-->
+<div class="modal-end-wrapper" *ngIf="(this.modal.end)">
+  <div class="modal-end">
+    <div class="modalz-text"> You Win!</div>
     <!--<div class="modalz-report" id="report"><div *ngFor="let text of this.report">{{text}}</div></div>-->
-  <!--</div>-->
-<!--</div>-->
+  </div>
+</div>
 <div class="modal-start-wrapper" *ngIf="(modal.start)">
   <div class="modal-start">{{title}}</div>
 </div>

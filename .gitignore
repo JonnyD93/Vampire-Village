@@ -42,3 +42,5 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
+node/node_modules/serve-static/README.md
+node/node_modules/type-is/package.json

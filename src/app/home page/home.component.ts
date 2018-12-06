@@ -19,8 +19,10 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit() {
-
-    if (this.accountService.checkSignedIn() && !this.accountService.checkAccount()) {
+    if(this.accountService.getRoomId() !== null && this.accountService.checkSignedIn()) {
+      this.router.navigate(['vampire-village']);
+    }
+    else if (this.accountService.checkSignedIn() && !this.accountService.checkAccount()) {
       this.displayData = this.accountService.getAccountStats();
     } else if (this.accountService.checkAccount()) {
       this.router.navigate(['create-character']);
@@ -34,8 +36,8 @@ export class HomeComponent implements OnInit {
     this.router.navigate(['login']);
   }
 
-  playPVE() {
-   this.accountService.createPVERoom((e) => console.log(e));
+  async playPVE() {
+   await this.accountService.createPVERoom((e) => console.log(e));
    this.router.navigate(['vampire-village']);
   }
 }

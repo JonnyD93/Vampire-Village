@@ -6,13 +6,19 @@ let admin = require("firebase-admin"),
 module.exports = app => {
   app.route('/createPVERoom')
     .post((req, res) => {
-      const request = req.body;
-      const player = request.player;
-      const vampires = {entities: gen.createVampire(request.level), teamName: 'Vampires', cpu: true};
-      const roomRef = db.ref('rooms').push();
-      roomRef.set({ sides: [[player], [vampires]], turnTime: 0});
-      db.ref(`users/${request.userId}`).update({roomId: roomRef.key}).then(() => {
-        turnSystem.getDatabaseUpdates(roomRef.key);
+      const request = req.body,
+        player = request.player,
+        vampires = gen.createVampire(request.level),
+        teamNames = [request.teamName, 'Vampires'],
+        room = [],
+        roomRef = db.ref('rooms').push();
+      // Temporary Solution until the loading sequence & more rooms are setup!
+      player.forEach(entity => room.push(entity));
+      vampires.forEach(entity => room.push(entity));
+      // Sets up the database initially
+      roomRef.set({ sides: [player, vampires], teamNames: teamNames, room: room,  turnTime: 0});
+      // Updates the user's roomId to the room, and then starts the turnSystem.
+      db.ref(`users/${request.userId}`).update({roomId: roomRef.key}).then(() => {turnSystem.getDatabaseUpdates(roomRef.key);
         res.send({id: roomRef.key});
       });
     });

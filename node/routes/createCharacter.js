@@ -1,6 +1,6 @@
-var admin = require("firebase-admin");
-var Character = require("../models/character");
-var db = admin.database();
+let admin = require("firebase-admin"),
+  Character = require("../models/character"),
+  db = admin.database();
 
 module.exports = app => {
   app.route('/createCharacter')

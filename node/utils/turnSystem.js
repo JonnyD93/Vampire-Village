@@ -1,36 +1,64 @@
-// Import Admin SDK
-let admin = require("firebase-admin"),
-  CombatUtils = require("../utils/combatUtils"),
-  // Get a database reference
-  db = admin.database();
+// Import Admin SDK  && Get a database reference
+let admin = require("firebase-admin"), db = admin.database();
+let combatUtils = require("./combatUtils.js");
 
-const checkIfCPU = (lobby, entity) => {
-    let boolean = false;
-    lobby.dbRoom.forEach((team) => team.filter((account) => account.cpu === true).forEach((account) =>
-      account.entities.forEach((entity1) => boolean = (entity1.id === entity.id))));
-    return boolean;
+const checkIfCPU = entity => entity.id.length < 10,
+  checkGameEnd = lobby => {
+    const allTeams = lobby.dbRoom.length, accounts = [];
+    // Gets all the different accountIds from the room & pushes it to the accounts Array
+    lobby.room.forEach(entity => (accounts.find(accountId => accountId === entity.accountId) === undefined) ? accounts.push(entity.accountId): null);
+    // Using accountIds, sorts out the different Teams, & checks if there is a player that still is on the opposing team.
+    (allTeams > accounts.length) ? db.ref(`rooms/${lobby.roomId}`).update({gameEnded: true}) : null;
   },
-  getDatabaseUpdates = (roomId) => {
+  getDatabaseUpdates = roomId => {
     let dbRoom = undefined;
-    db.ref(`rooms/${roomId}`).once('value', (snapshot) => dbRoom = snapshot.val().sides, (e) => console.log(e))
-      .then(() => setupLobby(roomId, dbRoom));
+    db.ref(`rooms/${roomId}`).once('value', snapshot => dbRoom = snapshot.val(), e => console.log(e))
+      .then(() => runTurns(setupLobby(roomId, dbRoom))).catch(e => console.log(e, 'Promise error'))
   },
-  updateCurrentTurn = (lobby) => {
-    db.ref(`rooms/${lobby.roomId}`).update({currentTurn: (lobby.turns[0]) ? lobby.turns[0] : sortTurns(lobby)});
-    return lobby.room.find((entity) => entity.id = lobby.turns[0]);
+  entityAttack = (entity, lobby) => { // Entity Ai
+    const enemies = lobby.room.filter(entityB => entityB.accountId !== entity.accountId),
+      defender = (enemies[Math.floor(Math.random() * enemies.length)]); // Finding the actual defender or target
+    combatUtils.damageCalculation(entity, defender, combatUtils.rndInt(entity.abilities.length - 1), lobby); // Running Damage Calculation on it
   },
-  updateTimeStamp = (roomId) => {
-    db.ref(`rooms/${roomId}`).update({turnTime: new Date()});
+  playerAttack = (attackerId, defenderId, roomId, dbRoom) => {
+    let lobby = resetupLobby(roomId, dbRoom),
+      attacker = lobby.room.find(entity => entity.id === attackerId),
+      defender = lobby.room.find(entity => entity.id === defenderId);
+    console.log(defenderId, attacker, 'check this');
+    if (defender !== undefined) {
+      combatUtils.damageCalculation(attacker, defender, 0, lobby);
+      skipTurn(attacker, lobby);
+      runTurns(lobby);
+    } else {
+      checkGameEnd(lobby);
+    }
   },
-  updateRoom = (lobby) => {
-    db.ref(`rooms/${lobby.roomId}`).update({turns: lobby.turns, room: lobby.room, turnTime: new Date()});
+  updateCurrentTurn = lobby => {
+    let currentTurn = (lobby.turns.length < 1) ? sortTurns(lobby) : lobby.turns[0];
+    db.ref(`rooms/${lobby.roomId}`).update({currentTurn: currentTurn});
+    return lobby.room.find(entity => entity.id === lobby.turns[0]);
   },
+  updateRoom = lobby => db.ref(`rooms/${lobby.roomId}`).update({
+    turns: lobby.turns,
+    dead: lobby.dead,
+    room: lobby.room,
+    turnTime: new Date()
+  }),
   setupLobby = (roomId, dbRoom) => {
-    let lobby = {roomId: roomId, dbRoom: dbRoom, room: [], timeStamp: new Date(), turns: []};
-    dbRoom.forEach((side) => side.forEach((account) => account.entities.forEach((entity) => lobby.room.push(entity))));
-    runTurns(lobby);
+    let lobby = {roomId: roomId, dead: [], dbRoom: dbRoom.sides, room: dbRoom.room, timeStamp: new Date(), turns: []};
+    return lobby;
   },
-  sortTurns = (lobby) => {
+  resetupLobby = (roomId, dbRoom) => ({
+    roomId: roomId, dead: !!(dbRoom.dead) ? dbRoom.dead : [], dbRoom: dbRoom.sides, room: dbRoom.room,
+    timeStamp: new Date(), turns: (dbRoom.turns !== []) ? dbRoom.turns : []
+  }),
+  skipTurn = (entity, lobby) => {
+    if (lobby.turns[0] === entity.id) {
+      lobby.turns.splice(lobby.turns.indexOf(entity.id), 1);
+      runTurns(lobby);
+    }
+  },
+  sortTurns = lobby => {
     // this.checkTeamDefeated();
     lobby.turns = [];
     lobby.room.sort((a, b) => {
@@ -38,41 +66,33 @@ const checkIfCPU = (lobby, entity) => {
         return 1;
       if (a.attributes.agility > b.attributes.agility)
         return -1;
-      return 0
     });
-    lobby.room.forEach((entity) => lobby.turns.push(entity.id));
-    return updateCurrentTurn(lobby);
+    lobby.room.forEach(entity => lobby.turns.push(entity.id));
+    return lobby.turns[0];
   },
-  skipTurn = (entity, lobby) => {
-    if (lobby.turns[0] === entity.id) {
-      lobby.turns.splice(lobby.turns.indexOf(entity.id),1);
-      updateCurrentTurn(lobby);
-      runTurns(lobby);
+  runTurns = lobby => {
+    // this.checkCurrentTurn();
+    const entity = updateCurrentTurn(lobby);
+    // if (!!(entity.activeEffects)) {
+    //   CombatUtils.effectTurn(entity, lobby);
+    // }
+    // entity.abilities.forEach((ability) => ability.currentCooldown--);
+    // if (!this.checkAnyActiveAbilities(entity)) {
+    //   // console.log('No Active abilities')
+    //   return this.skipTurn(entity);
+    // }
+    // entity.activeTurn = true;
+    console.log(lobby.turns, 'turns', entity.id, 'entity');
+    if (checkIfCPU(entity)) {
+      entityAttack(entity, lobby);
+      skipTurn(entity, lobby);
     }
+    updateRoom(lobby);
   };
 
-async function runTurns(lobby) {
-  // this.checkCurrentTurn();
-  const entity = updateCurrentTurn(lobby);
-  // if (!!(entity.activeEffects)) {
-  //   CombatUtils.effectTurn(entity, lobby);
-  // }
-  // entity.abilities.forEach((ability) => ability.currentCooldown--);
-  // if (!this.checkAnyActiveAbilities(entity)) {
-  //   // console.log('No Active abilities')
-  //   return this.skipTurn(entity);
-  // }
-  // entity.activeTurn = true;
-  if(checkIfCPU(lobby, entity)) {
-    CombatUtils.entityAttack(entity, lobby);
-    updateRoom(lobby);
-    return skipTurn(entity, lobby);
-  } else {
-    return updateRoom(lobby);
-  }
-}
+// async function updateTimeStamp(roomId) {
+//   db.ref(`rooms/${roomId}`).update({turnTime: new Date()});
+// }
 
-module.exports = {getDatabaseUpdates};
+module.exports = {getDatabaseUpdates, playerAttack};
 
-// var authUtil = require('url');
-// authUtil.helloWorld();
